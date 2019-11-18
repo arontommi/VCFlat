@@ -9,7 +9,7 @@ class VcfParse:
         self.csq = self.csq_flag()
         self.csq_labels = []
         if self.csq:
-            self.vcf_header.append('CSQdict')
+            self.vcf_header_csq_added = self.vcf_header + ['CSQdict']
             self.csq_labels = he.meta_dict['INFO']['CSQ'][2].split(':',1)[1].split('|')
             self.csq_len = len(self.csq_labels)
 
@@ -29,7 +29,7 @@ class VcfParse:
 
     def zipformat(self,ll):
         for nr, plist in enumerate(ll[9:]):
-            formatlist = [self.vcf_header[nr+9]+'_'+ i for i in plist[0].split(':')]
+            formatlist = [self.vcf_header_csq_added[nr+9]+'_'+ i for i in plist[0].split(':')]
             ll[nr + 9] = dict(zip(formatlist,plist[1].split(':')))
         return ll
 
@@ -84,8 +84,8 @@ class VcfParse:
                 mergeddict.update(d)
             dictlist.append(mergeddict)
         infodf = pd.DataFrame(dictlist)
-        self.vcf_header.pop(8)
-        df = pd.DataFrame(masterlist, columns=self.vcf_header)
+        self.vcf_header_csq_added.pop(8)
+        df = pd.DataFrame(masterlist, columns=self.vcf_header_csq_added)
         combdf = pd.concat([df.reset_index(drop=True), infodf], axis=1)
         return combdf
 
