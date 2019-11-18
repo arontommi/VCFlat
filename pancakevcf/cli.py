@@ -1,5 +1,4 @@
 from pancakevcf.VcfParse import *
-from test.TestFunctions import *
 import click
 
 @click.command()
