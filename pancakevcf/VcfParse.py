@@ -1,23 +1,34 @@
 import pandas as pd
+import pprint as pp
 from pancakevcf.HeaderExtraction import *
 
 class VcfParse:
     def __init__(self, input_vcf):
         he = HeaderExtract(input_vcf)
         self.vcf_header = he.vcf_header
+        self.sample_header = he.sample_header
         self.meta_dict = he.meta_dict
         self.csq = self.csq_flag()
         self.csq_labels = []
         if self.csq:
-            self.vcf_header_csq_added = self.vcf_header + ['CSQdict']
+            self.vcf_header_extended = self.vcf_header + ['CSQdict']
             self.csq_labels = he.meta_dict['INFO']['CSQ'][2].split(':',1)[1].split('|')
             self.csq_len = len(self.csq_labels)
+        else:
+            self.vcf_header_extended = self.vcf_header
+        self.df = self.main_parse(input_vcf)
 
     def csq_flag(self):
-        if self.meta_dict['INFO'].get('CSQ'):
-            return True
+        """
+        Checks if the meta dict includes CSQ annotation
+        """
+        if self.meta_dict.get("INFO"):
+            if self.meta_dict['INFO'].get('CSQ'):
+                return True
         else:
             return False
+
+
 
 
 
@@ -29,7 +40,7 @@ class VcfParse:
 
     def zipformat(self,ll):
         for nr, plist in enumerate(ll[9:]):
-            formatlist = [self.vcf_header_csq_added[nr+9]+'_'+ i for i in plist[0].split(':')]
+            formatlist = [self.vcf_header_extended[nr+9]+'_'+ i for i in plist[0].split(':')]
             ll[nr + 9] = dict(zip(formatlist,plist[1].split(':')))
         return ll
 
@@ -84,8 +95,8 @@ class VcfParse:
                 mergeddict.update(d)
             dictlist.append(mergeddict)
         infodf = pd.DataFrame(dictlist)
-        self.vcf_header_csq_added.pop(8)
-        df = pd.DataFrame(masterlist, columns=self.vcf_header_csq_added)
+        self.vcf_header_extended.pop(8)
+        df = pd.DataFrame(masterlist, columns=self.vcf_header_extended)
         combdf = pd.concat([df.reset_index(drop=True), infodf], axis=1)
         return combdf
 
@@ -94,6 +105,9 @@ class VcfParse:
         masterlist = self.parse_vcf_elements(vcf_file)
         df = self.masterlist2df(masterlist)
         return df
+
+    def pprint_columns(self):
+        pp.pprint(list(self.df.columns.values))
 
 
 
