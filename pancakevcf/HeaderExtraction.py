@@ -8,28 +8,65 @@ class HeaderExtract:
         self.raw_vcf_header_list = [header_line for header_line in self.vcf_file.raw_header.split("\n") if header_line]
         self.extract_header()
         self.rename_long_header()
+        self.sample_header = self.extract_samplenames()
+        self.validateheadersyntax()
         self.meta_list = self.clean_meta()
         self.meta_dict = self.dictify()
-        # self.meta_dict = self.chunks_dicts()
-        for i in ['INFO', 'FORMAT']:
-            self.meta_dict = self.custom_dict_chunking(i, 3)
-            self.meta_dict = self.list2dict(f'{i}')
-        for i in ['FILTER']:
-            self.meta_dict = self.custom_dict_chunking(i, 1)
-            self.meta_dict = self.list2dict(f'{i}')
+        run_dict_chunking = self.validatemetaandheader()
+        if run_dict_chunking is True:
+            for i in ['INFO', 'FORMAT']:
+                self.meta_dict = self.custom_dict_chunking(i, 3)
+                self.meta_dict = self.list2dict(f'{i}')
+            for i in ['FILTER']:
+                self.meta_dict = self.custom_dict_chunking(i, 1)
+                self.meta_dict = self.list2dict(f'{i}')
+
+    def validateheadersyntax(self):
+        """
+        makes sure that the vcf has required fields
+        :return:
+        """
+        if self.vcf_header[:8] == ['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO']:
+            pass
+        else:
+            print('Wrong input')
+
+    def validatemetaandheader(self):
+        """
+        Checks if INFO FORMAT and FILTER are in metainfo
+        :return:
+        """
+        metalist = [i for i in  self.meta_dict]
+        includelist = ['INFO', 'FORMAT','FILTER']
+        run_dict_chunking = True
+        if set(includelist).issubset(metalist):
+            pass
+        else:
+            run_dict_chunking = False
+        return run_dict_chunking
 
     def extract_header(self):
+        """
+        looks for the real header file of the vcf file and pops it out ( so it is not included in the meta file,
+        and creates a vcf_header list
+        """
         for n,i in enumerate(self.raw_vcf_header_list):
             if i.startswith('#CHROM'):
                 self.raw_vcf_header_list.pop(n)
                 self.vcf_header = [ii for ii in i.split('\t')]
 
     def rename_long_header(self):
+        """
+        if any of the sample names are to long, it is replaced with Sample #TODO to fix this
+        :return:
+        """
         if len(self.vcf_header) == 10:
             if len(self.vcf_header[9]) >= 10:
                 self.vcf_header[9] = "Sample"
         return self.vcf_header
 
+    def extract_samplenames(self):
+        return self.vcf_header[9:]
 
     def clean_meta(self):
         meta_list = []
