@@ -3,3 +3,5 @@ venv
 __pycache__
 main_test.py
 test
+.DS_Store
+pancakevcf/.DS_Store
