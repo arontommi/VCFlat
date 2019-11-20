@@ -1,7 +1,5 @@
 import pandas as pd
 import pprint as pp
-from itertools import chain
-import collections
 
 from pancakevcf.HeaderExtraction import *
 
@@ -79,6 +77,11 @@ class VcfParse:
 
 
     def format2samples(self, li):
+        """
+        function to parse format and sample elements of each vcf line
+        :param li: vcf line
+        :return: formatted vcf line and removes the FORMAT from the vcf line
+        """
         li = self.nestlists(li)
         li = self.zipformat(li)
         li = self.split_ref_alt(li)
