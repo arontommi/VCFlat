@@ -18,7 +18,7 @@ class TestVcfParse(unittest.TestCase):
         test if final pandas dataframe is returned and in the correct shape
         """
         self.assertEqual(str(type(self.vp_1.df)), "<class 'pandas.core.frame.DataFrame'>")
-        self.assertEqual(self.vp_1.df.shape, (115, 1587))
+        self.assertEqual(self.vp_1.df.shape, (115, 1965))
 
     def test_base(self):
         """
