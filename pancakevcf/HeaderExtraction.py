@@ -1,5 +1,7 @@
 from collections import defaultdict
 from cyvcf2 import VCF, Writer
+import pprint as pp
+
 
 
 class VcfMeta:
@@ -143,4 +145,22 @@ class VcfMeta:
 
             self.meta_dict[f'{field}'][l4d[0]] = l4d[1:]
         return self.meta_dict
+
+    def pprint_meta(self,key=False):
+
+        if key:
+
+            try:
+                print(f'\n'
+                      f'Printing out the values from the meta dict for {key}\n'
+                      f'Starts with a key and then gives a info for the output\n')
+                for k,v in self.meta_dict[key].items():
+                    print(f"Key = {k} : Values = {v}")
+            except AttributeError:
+                print(f'Seems like the key value pairs did not play nicely for {key} \n'
+                      'but here is the output anyway ')
+                print(self.meta_dict[key])
+        else:
+            pp.pprint(self.meta_dict,depth=1)
+
 
