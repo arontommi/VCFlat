@@ -1,10 +1,13 @@
 import pandas as pd
 import pprint as pp
+from itertools import chain
+import collections
+
 from pancakevcf.HeaderExtraction import *
 
 class VcfParse:
     def __init__(self, input_vcf):
-        he = HeaderExtract(input_vcf)
+        he = VcfMeta(input_vcf)
         self.vcf_header = he.vcf_header
         self.sample_header = he.sample_header
         self.meta_dict = he.meta_dict
@@ -20,7 +23,7 @@ class VcfParse:
 
     def csq_flag(self):
         """
-        Checks if the meta dict includes CSQ annotation
+        Checks if the meta dict includes an INFO field and if the info has CSQ annotation
         """
         if self.meta_dict.get("INFO"):
             if self.meta_dict['INFO'].get('CSQ'):
@@ -29,24 +32,56 @@ class VcfParse:
             return False
 
 
-
-
-
     def nestlists(self,ll):
+        """
+        adds FORMAT labels with format values in sample columns
+        :param ll:
+        :return:
+        """
         for nr, i in enumerate(ll[9:]):
             ll[nr+9] = [ll[8],i]
         if self:
             return ll
 
     def zipformat(self,ll):
+        """
+        zips together FORMAT labels, Sample name and format values into one dict
+        :param ll:
+        :return:
+        """
         for nr, plist in enumerate(ll[9:]):
             formatlist = [self.vcf_header_extended[nr+9]+'_'+ i for i in plist[0].split(':')]
             ll[nr + 9] = dict(zip(formatlist,plist[1].split(':')))
         return ll
 
+    def split_ref_alt(self,ll):
+        """
+        splits FORMAT elements that has two values into REF and ALT
+
+        """
+        RA = ['_REF', '_ALT']
+        for nr, i in enumerate(ll[9:]):
+            ldicts = dict()
+            for k, v in i.items():
+                if len(v.split(',')) == 2:
+                    vsp = [ int(i) for i in v.split(',')]
+                    k_RA = [k+r for r in RA]
+                    ndict = dict()
+                    for nk , nv in zip(k_RA, vsp):
+                        ndict[nk] = nv
+                    ldicts = {**ldicts,**ndict}
+            ll[nr + 9] = {**i, **ldicts}
+
+        return(ll)
+
+
+
+
+
     def format2samples(self, li):
         li = self.nestlists(li)
         li = self.zipformat(li)
+        li = self.split_ref_alt(li)
         li.pop(8)
         return li
 
@@ -105,6 +140,7 @@ class VcfParse:
         masterlist = self.parse_vcf_elements(vcf_file)
         df = self.masterlist2df(masterlist)
         return df
+
 
     def pprint_columns(self):
         pp.pprint(list(self.df.columns.values))
