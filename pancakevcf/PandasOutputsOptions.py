@@ -17,7 +17,7 @@ class SimpleProfile:
                                      'Consequence',
                                      'Existing_variation']
 
-class ExtractRelevantCols:
+class SampleSpecificColumns:
     """
     Extract columns of that are specific to each sample from df
     """
