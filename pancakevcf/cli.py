@@ -14,8 +14,9 @@ import click
     '--sample', '-s',
     help='give it a sample',
 )
-@click.option('--testfile','-t', is_flag=True, help="Will print verbose messages.")
+
 def main(inputfile,outputfile,sample):
     vp = VcfParse(inputfile)
+    vp.sample = sample
     df = vp.main_parse(input_vcf=inputfile)
     print(df.shape)

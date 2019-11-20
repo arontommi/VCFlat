@@ -1,5 +1,4 @@
 #TODO store what pandas columns to return
-from pancakevcf.VcfParse import *
 
 class BareProfile:
     """
