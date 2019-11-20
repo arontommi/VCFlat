@@ -2,7 +2,7 @@ from collections import defaultdict
 from cyvcf2 import VCF, Writer
 
 
-class HeaderExtract:
+class VcfMeta:
     def __init__(self, input_vcf):
         self.vcf_file = VCF('{}'.format(input_vcf), strict_gt=True)
         self.raw_vcf_header_list = [header_line for header_line in self.vcf_file.raw_header.split("\n") if header_line]
@@ -66,9 +66,17 @@ class HeaderExtract:
         return self.vcf_header
 
     def extract_samplenames(self):
+        """
+        returns samplenames
+        :return:
+        """
         return self.vcf_header[9:]
 
     def clean_meta(self):
+        """
+        cleans raw_vcf_header_list for downstream processing
+        :return:
+        """
         meta_list = []
         for i in self.raw_vcf_header_list:
             if '=<' in i:
@@ -83,6 +91,10 @@ class HeaderExtract:
 
 
     def dictify(self):
+        """
+        create a dict of the meta.list
+        :return:
+        """
         meta_dict = defaultdict()
         for i in self.meta_list:
             try:
