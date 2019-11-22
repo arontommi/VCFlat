@@ -1,36 +1,49 @@
 import pandas as pd
 import pprint as pp
-
+import csv
 from pancakevcf.HeaderExtraction import *
 
-class VcfParse:
-    def __init__(self, input_vcf):
-        he = VcfMeta(input_vcf)
-        self.vcf_header = he.vcf_header
-        self.sample_header = he.sample_header
-        self.meta_dict = he.meta_dict
-        self.csq = self.csq_flag()
-        self.csq_labels = []
-        if self.csq:
-            self.vcf_header_extended = self.vcf_header + ['CSQdict']
-            self.csq_labels = he.meta_dict['INFO']['CSQ'][2].split(':',1)[1].split('|')
-            self.csq_len = len(self.csq_labels)
-        else:
-            self.vcf_header_extended = self.vcf_header
-        self.df = self.main_parse(input_vcf)
+#TODO refactor everything so that only the input_vcf is obtained in the __init__
+#TODO let VcfParse inherite VcfMeta and then add ontop of it.
 
+class VcfParse:
+    def __init__(self, input_vcf, keys=False):
+        self.vcf_meta = VcfMeta().populatevcfheader(input_vcf=input_vcf)
+
+        self.csq = self.csq_flag()
+        self.vcf_header_extended = self.vcf_meta.header
+        if self.csq:
+            self.csq_labels = self.get_csq_labels()
+            self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
+
+        if keys:
+            self.df = self.write2csv(input_vcf,keys)
+        else:
+            keys = self.get_header(input_vcf)
+            self.df = self.write2csv(input_vcf, keys)
+
+
+    """Flag functions do determine what to run based on meta information information """
     def csq_flag(self):
         """
         Checks if the meta dict includes an INFO field and if the info has CSQ annotation
         """
-        if self.meta_dict.get("INFO"):
-            if self.meta_dict['INFO'].get('CSQ'):
+        if self.vcf_meta.meta_dict.get("INFO"):
+            if self.vcf_meta.meta_dict['INFO'].get('CSQ'):
                 return True
         else:
             return False
 
+    def get_csq_labels(self):
+        """extract csq labels from meta info"""
+        csq_labels = self.vcf_meta.meta_dict['INFO']['CSQ'][2].split(':',1)[1].split('|')
+        return csq_labels
 
-    def nestlists(self,ll):
+
+    """Functions to deal with FORMAT and Sample columns of the vcf"""
+
+    @staticmethod
+    def nestlists(ll):
         """
         adds FORMAT labels with format values in sample columns
         :param ll:
@@ -38,21 +51,23 @@ class VcfParse:
         """
         for nr, i in enumerate(ll[9:]):
             ll[nr+9] = [ll[8],i]
-        if self:
-            return ll
+        return ll
 
-    def zipformat(self,ll):
+    @staticmethod
+    def zipformat(ll,header_list):
         """
         zips together FORMAT labels, Sample name and format values into one dict
         :param ll:
+        :param header_list:
         :return:
         """
         for nr, plist in enumerate(ll[9:]):
-            formatlist = [self.vcf_header_extended[nr+9]+'_'+ i for i in plist[0].split(':')]
+            formatlist = [header_list[nr+9]+'_'+ i for i in plist[0].split(':')]
             ll[nr + 9] = dict(zip(formatlist,plist[1].split(':')))
         return ll
 
-    def split_ref_alt(self,ll):
+    @staticmethod
+    def split_ref_alt(ll):
         """
         splits FORMAT elements that has two values into REF and ALT
 
@@ -72,24 +87,23 @@ class VcfParse:
 
         return(ll)
 
-
-
-
-
     def format2samples(self, li):
         """
-        function to parse format and sample elements of each vcf line
+        master function to parse FORMAT and sample elements of each vcf line
         :param li: vcf line
         :return: formatted vcf line and removes the FORMAT from the vcf line
         """
         li = self.nestlists(li)
-        li = self.zipformat(li)
+        li = self.zipformat(li, header_list=self.vcf_meta.header)
         li = self.split_ref_alt(li)
-        li.pop(8)
         return li
 
-    def splitinfo(self, li):
-        defdi = defaultdict()
+    """Functions to deal with The Info column of the vcf"""
+
+    @staticmethod
+    def splitinfo(li):
+        """ Splits the INFO column and generates a dict"""
+        defdi = dict()
         for i in li[7].split(';'):
             if '=' not in i:
                 defdi[i] = 'True'
@@ -97,56 +111,66 @@ class VcfParse:
                 l4d = i.split('=')
                 defdi[l4d[0]] = l4d[1]
         li[7] = defdi
-        if self:
-            return li
+        return li
 
-
+    @staticmethod
+    def parse_csq(li,csq_labels):
+        ret_list = []
+        for infolist in li[7]['CSQ'].split(','):
+            nl = li.copy()
+            z = dict(zip(csq_labels, infolist.split('|')))
+            nl.append(z)
+            ret_list = nl
+        return ret_list
 
     def read_vcf(self, input_vcf):
         vcf_file = VCF('{}'.format(input_vcf), strict_gt=True)
-        if self:
-            return vcf_file
+        return vcf_file
 
-    def parse_vcf_elements(self, vcf_file):
-        masterlist = []
-        for i in vcf_file:
-            li = []
-            for ii in str(i).split('\t'):
-                li.append(ii.strip())
-            li = self.format2samples(li)
-            li = self.splitinfo(li)
-            ret_list = li
-            if self.csq:
-                for infolist in li[7]['CSQ'].split(','):
-                    nl = li.copy()
-                    z = dict(zip(self.csq_labels, infolist.split('|')))
-                    nl.append(z)
-                    ret_list = nl
-            masterlist.append(ret_list)
-        return masterlist
+    def split_line(self, line):
+        listfromvcfline = [i.strip('\n') for i in str(line).split('\t')]
+        return listfromvcfline
 
-    def masterlist2df(self,masterlist):
-        dictlist = []
-        for li in masterlist:
-            mergeddict = defaultdict()
-            for d in li[7:]:
-                mergeddict.update(d)
-            dictlist.append(mergeddict)
-        infodf = pd.DataFrame(dictlist)
-        self.vcf_header_extended.pop(8)
-        df = pd.DataFrame(masterlist, columns=self.vcf_header_extended)
-        combdf = pd.concat([df.reset_index(drop=True), infodf], axis=1)
-        return combdf
 
-    def main_parse(self, input_vcf):
+
+    def parse_line_list(self,listfromvcfline):
+        li = self.format2samples(listfromvcfline)
+        li = self.splitinfo(li)
+        if self.csq:
+            li = self.parse_csq(li, self.csq_labels)
+        d = {k: v for k, v in zip(self.vcf_header_extended, li)}
+        return d
+
+    def flatten_d(self, d):
+        mergeddict = dict()
+        for k,v in d.items():
+            if type(v) is dict:
+                mergeddict.update(v)
+        dd = {**d, **mergeddict}
+        return dd
+
+    def parse(self, input_vcf):
         vcf_file = self.read_vcf(input_vcf)
-        masterlist = self.parse_vcf_elements(vcf_file)
-        df = self.masterlist2df(masterlist)
+        for i in vcf_file:
+            line = self.split_line(i)
+            return_li = self.parse_line_list(line)
+            merged = self.flatten_d(return_li)
+            yield merged
+
+    def get_header(self, input_vcf):
+        pars = self.parse(input_vcf)
+        keys = set()
+        for d in pars:
+            keys.update(d.keys())
+        return keys
+
+    def write2csv(self, input_vcf, keys):
+        pars = self.parse(input_vcf)
+
+        file = '/Users/aroska/TestingData/writtenoutput.csv'
+        with open(file, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile,keys, delimiter='\t',extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(pars)
+        df = pd.read_csv('/Users/aroska/TestingData/writtenoutput.csv', sep='\t')
         return df
-
-
-    def pprint_columns(self):
-        pp.pprint(list(self.df.columns.values))
-
-
-
