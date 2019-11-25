@@ -14,9 +14,13 @@ import click
     '--sample', '-s',
     help='give it a sample',
 )
+@click.option(
+    '--keys',
+    help='keys for columns'
+)
 
 def main(inputfile,outputfile,sample):
-    vp = VcfParse(inputfile)
+    vp = VcfParse(inputfile, outputfile, sample, keys=False)
     vp.sample = sample
     df = vp.main_parse(input_vcf=inputfile)
     print(df.shape)
