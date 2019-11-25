@@ -3,8 +3,6 @@ import pprint as pp
 import csv
 from pancakevcf.HeaderExtraction import *
 
-#TODO refactor everything so that only the input_vcf is obtained in the __init__
-#TODO let VcfParse inherite VcfMeta and then add ontop of it.
 
 class VcfParse:
     def __init__(self, input_vcf, keys=False):
@@ -114,13 +112,25 @@ class VcfParse:
         return li
 
     @staticmethod
-    def parse_csq(li,csq_labels):
-        ret_list = []
-        for infolist in li[7]['CSQ'].split(','):
-            nl = li.copy()
-            z = dict(zip(csq_labels, infolist.split('|')))
-            nl.append(z)
-            ret_list = nl
+    def valdidate_CSQ(li):
+        """
+        Validates that INFO column has the csq dict.
+        :param li:
+        :return:
+        """
+
+        if not li[7].get("CSQ"):
+            return True
+
+    def parse_csq(self, li,csq_labels):
+        ret_list = li.copy()
+        flag = self.valdidate_CSQ(li)
+        if not flag:
+            for infolist in li[7]['CSQ'].split(','):
+                nl = li.copy()
+                z = dict(zip(csq_labels, infolist.split('|')))
+                nl.append(z)
+                ret_list = nl
         return ret_list
 
     def read_vcf(self, input_vcf):
@@ -171,6 +181,11 @@ class VcfParse:
         with open(file, 'w') as csvfile:
             writer = csv.DictWriter(csvfile,keys, delimiter='\t',extrasaction='ignore')
             writer.writeheader()
-            writer.writerows(pars)
+            nr = 0
+            for line in pars:
+                writer.writerow(line)
+                nr += 1
+                if nr % 10000 == 0:
+                    print(f'{nr} processed')
         df = pd.read_csv('/Users/aroska/TestingData/writtenoutput.csv', sep='\t')
         return df
