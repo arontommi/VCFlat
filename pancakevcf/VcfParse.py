@@ -1,12 +1,11 @@
 import pandas as pd
-import pprint as pp
 import csv
-from pancakevcf.HeaderExtraction import *
-
+from pancakevcf.HeaderExtraction import VcfMeta
+from cyvcf2 import VCF
 
 class VcfParse:
-    def __init__(self, input_vcf, keys=False):
-        self.vcf_meta = VcfMeta().populatevcfheader(input_vcf=input_vcf)
+    def __init__(self, input_vcf):
+        self.vcf_meta = VcfMeta(input_vcf=input_vcf)
 
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
@@ -14,11 +13,10 @@ class VcfParse:
             self.csq_labels = self.get_csq_labels()
             self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
 
-        if keys:
-            self.df = self.write2csv(input_vcf,keys)
-        else:
-            keys = self.get_header(input_vcf)
-            self.df = self.write2csv(input_vcf, keys)
+        self.parsed = self.parse(input_vcf)
+
+    def __repr__(self):
+        return repr(self.parsed)
 
 
     """Flag functions do determine what to run based on meta information information """
@@ -34,6 +32,7 @@ class VcfParse:
 
     def get_csq_labels(self):
         """extract csq labels from meta info"""
+        print( self.vcf_meta.meta_dict['INFO'])
         csq_labels = self.vcf_meta.meta_dict['INFO']['CSQ'][2].split(':',1)[1].split('|')
         return csq_labels
 
@@ -85,6 +84,33 @@ class VcfParse:
 
         return(ll)
 
+    @staticmethod
+    def generate_VAF(ll):
+        for nr, i in enumerate(ll[9:]):
+            refdp = 1
+            altdp = 1
+            ndict = {}
+            sample = ''
+            for k, v in i.items():
+                if k.endswith("AD_REF"):
+                    refdp = v
+                    sample = k.strip("AD_REF")
+                if k.endswith("AD_ALT"):
+                    altdp = v
+                totdp = refdp + altdp
+                try:
+                    vaf = altdp / totdp
+                except ZeroDivisionError:
+                    vaf = 0
+                ndict = {f'{sample}_VAF': vaf}
+            ll[nr + 9] = {**i, **ndict}
+        return ll
+
+
+
+
+
+
     def format2samples(self, li):
         """
         master function to parse FORMAT and sample elements of each vcf line
@@ -94,6 +120,7 @@ class VcfParse:
         li = self.nestlists(li)
         li = self.zipformat(li, header_list=self.vcf_meta.header)
         li = self.split_ref_alt(li)
+        li = self.generate_VAF(li)
         return li
 
     """Functions to deal with The Info column of the vcf"""
@@ -167,25 +194,4 @@ class VcfParse:
             merged = self.flatten_d(return_li)
             yield merged
 
-    def get_header(self, input_vcf):
-        pars = self.parse(input_vcf)
-        keys = set()
-        for d in pars:
-            keys.update(d.keys())
-        return keys
 
-    def write2csv(self, input_vcf, keys):
-        pars = self.parse(input_vcf)
-
-        file = '/Users/aroska/TestingData/writtenoutput.csv'
-        with open(file, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile,keys, delimiter='\t',extrasaction='ignore')
-            writer.writeheader()
-            nr = 0
-            for line in pars:
-                writer.writerow(line)
-                nr += 1
-                if nr % 10000 == 0:
-                    print(f'{nr} processed')
-        df = pd.read_csv('/Users/aroska/TestingData/writtenoutput.csv', sep='\t')
-        return df
