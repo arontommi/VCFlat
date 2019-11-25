@@ -15,6 +15,7 @@ class VcfHeader(object):
         self.header = header
         self.meta_dict = meta_dict
 
+
     def pprint_meta(self,key=False):
 
         if key:
@@ -32,8 +33,16 @@ class VcfHeader(object):
         else:
             pp.pprint(self.meta_dict,depth=1)
 
+    def determine_keys(self):
+        pass
+
+
 class VcfMeta:
+    def __init__(self,input_vcf):
+        self.vcf_header = self.populatevcfheader(input_vcf=input_vcf)
+
     """ class to create a vcfinfo object """
+
 
     @staticmethod
     def get_raw_header(input_vcf):
