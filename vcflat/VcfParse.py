@@ -1,7 +1,8 @@
-from HeaderExtraction import populatevcfheader
 from csv import DictWriter
-
 from cyvcf2 import VCF
+
+from HeaderExtraction import populatevcfheader
+
 
 class VcfParse:
     def __init__(self, input_vcf):
