@@ -19,11 +19,15 @@ import click
     help='keys for columns'
 )
 @click.option(
-    '--fastkeys',
+    '--slowkeys',
     help='keys for columns',
     is_flag=True
+
 )
-def vcfflat(inputfile,outputfile,sample,keys,fastkeys):
+def vcfflat(inputfile,outputfile,sample,keys,slowkeys):
+    fastkeys = True
+    if slowkeys:
+        fastkeys = False
     generatecsv(inputfile, outputfile, sample=sample,keys=keys, fastkeys=fastkeys)
 
 
