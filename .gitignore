@@ -3,7 +3,8 @@ venv
 __pycache__
 main_test.py
 HE_testing.py
-
 test
 .DS_Store
 pancakevcf/.DS_Store
+dist/
+vcflat.egg-info/
