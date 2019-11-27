@@ -28,7 +28,12 @@ def vcfflat(inputfile,outputfile,sample,keys,slowkeys):
     fastkeys = True
     if slowkeys:
         fastkeys = False
-    generatecsv(inputfile, outputfile, sample=sample,keys=keys, fastkeys=fastkeys)
+
+    generatecsv(inputfile,
+                outputfile,
+                sample=sample,
+                keys=keys,
+                fastkeys=fastkeys)
 
 
 if __name__ == '__main__':

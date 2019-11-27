@@ -1,7 +1,7 @@
 from csv import DictWriter
 from cyvcf2 import VCF
 
-from HeaderExtraction import populatevcfheader
+from vcflat.HeaderExtraction import populatevcfheader
 
 
 class VcfParse:
@@ -53,9 +53,7 @@ class VcfParse:
     def zipformat(ll,header_list):
         """
         zips together FORMAT labels, Sample name and format values into one dict
-        :param ll:
-        :param header_list:
-        :return:
+
         """
         for nr, plist in enumerate(ll[9:]):
             formatlist = [header_list[nr+9]+'_'+ i for i in plist[0].split(':')]
@@ -68,23 +66,26 @@ class VcfParse:
         splits FORMAT elements that has two values into REF and ALT
 
         """
-        RA = ['_REF', '_ALT']
+        ra = ['_REF', '_ALT']
         for nr, i in enumerate(ll[9:]):
             ldicts = dict()
             for k, v in i.items():
                 if len(v.split(',')) == 2:
                     vsp = [ int(i) for i in v.split(',')]
-                    k_RA = [k+r for r in RA]
+                    k_ra = [k+r for r in ra]
                     ndict = dict()
-                    for nk , nv in zip(k_RA, vsp):
+                    for nk , nv in zip(k_ra, vsp):
                         ndict[nk] = nv
                     ldicts = {**ldicts,**ndict}
             ll[nr + 9] = {**i, **ldicts}
 
-        return(ll)
+        return ll
 
     @staticmethod
-    def generate_VAF(ll):
+    def generate_vaf(ll):
+        """
+        Creates VAF tab (variant allele frequency) AD_ALT / (AD_REF + AD_ALT)
+        """
         for nr, i in enumerate(ll[9:]):
             refdp = 1
             altdp = 1
@@ -116,13 +117,12 @@ class VcfParse:
     def format2samples(self, li):
         """
         master function to parse FORMAT and sample elements of each vcf line
-        :param li: vcf line
-        :return: formatted vcf line and removes the FORMAT from the vcf line
+
         """
         li = self.nestlists(li)
         li = self.zipformat(li, header_list=self.vcf_meta.header)
         li = self.split_ref_alt(li)
-        li = self.generate_VAF(li)
+        li = self.generate_vaf(li)
         return li
 
     """Functions to deal with The Info column of the vcf"""
@@ -141,7 +141,7 @@ class VcfParse:
         return li
 
     @staticmethod
-    def valdidate_CSQ(li):
+    def valdidate_csq(li):
         """
         Validates that INFO column has the csq dict.
         :param li:
@@ -153,7 +153,7 @@ class VcfParse:
 
     def parse_csq(self, li,csq_labels):
         ret_list = li.copy()
-        flag = self.valdidate_CSQ(li)
+        flag = self.valdidate_csq(li)
         if not flag:
             for infolist in li[7]['CSQ'].split(','):
                 nl = li.copy()
@@ -162,11 +162,13 @@ class VcfParse:
                 ret_list = nl
         return ret_list
 
-    def read_vcf(self, input_vcf):
+    @staticmethod
+    def read_vcf(input_vcf):
         vcf_file = VCF('{}'.format(input_vcf), strict_gt=True)
         return vcf_file
 
-    def split_line(self, line):
+    @staticmethod
+    def split_line(line):
         listfromvcfline = [i.strip('\n') for i in str(line).split('\t')]
         return listfromvcfline
 
@@ -180,7 +182,8 @@ class VcfParse:
         d = {k: v for k, v in zip(self.vcf_header_extended, li)}
         return d
 
-    def flatten_d(self, d):
+    @staticmethod
+    def flatten_d(d):
         mergeddict = dict()
         for k,v in d.items():
             if type(v) is dict:
@@ -188,7 +191,8 @@ class VcfParse:
         dd = {**d, **mergeddict}
         return dd
 
-    def add_sample(self, d, s):
+    @staticmethod
+    def add_sample(d, s):
         d.update({"Sample" : s})
         return d
 
@@ -205,6 +209,8 @@ class VcfParse:
             sample_added = self.add_sample(merged, s)
             yield sample_added
 
+    """functions to extract column headers"""
+
     def get_header(self):
         pars = self.parse()
         keys = set()
@@ -217,6 +223,7 @@ class VcfParse:
         first_line = next(pars)
         keys = first_line.keys()
         return keys
+
 
     def write2csv(self, outputfile,keys, sample=None):
 
