@@ -20,7 +20,9 @@ vcflat uses the column keys from the first variant to generate the columns, if y
 iterate through the whole vcf file before you can create the columns (so twice as slow)
 
 you can also use your own column keys and your own ordering of those keys by using:
-`--keys ['CHROM'...]`
+`--keys keys.txt` with keys.txt being a tab delimited file (all in one row)
+
+I tend to run one vcf file with the `--slowkeys` flag and then pick relevant column names from there
 
 VCflat uses [Cyvcf2](https://github.com/brentp/cyvcf2) under the hood. Cyvcf2 *is a cython wrapper around [htslib](https://github.com/samtools/htslib)
  built for fast parsing of [Variant Call Format](https://en.m.wikipedia.org/wiki/Variant_Call_Format) (VCF) files.*
