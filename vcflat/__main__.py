@@ -1,6 +1,6 @@
 import sys
 
-from cli import vcfflat as cli
+from vcflat.cli import vcfflat as cli
 
 """
 vcfflat.__main__
