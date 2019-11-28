@@ -5,9 +5,9 @@ from vcflat.HeaderExtraction import populatevcfheader
 
 
 class VcfParse:
-    def __init__(self, input_vcf):
+    def __init__(self, input_vcf, samplefield):
         self.input_vcf = input_vcf
-        self.vcf_meta = populatevcfheader(self.input_vcf)
+        self.vcf_meta = populatevcfheader(self.input_vcf,samplefield)
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
 
@@ -224,10 +224,18 @@ class VcfParse:
         keys = first_line.keys()
         return keys
 
+    @staticmethod
+    def dictify_keys(keys):
+        """make sure that the input is in order and is in dict_key format"""
+        l = []
+        for i in keys:
+            l.append(i)
+        dkeys = dict.fromkeys(l).keys()
+        return dkeys
 
     def write2csv(self, outputfile,keys, sample=None):
-
         pars = self.parse(sample)
+        keys = self.dictify_keys(keys)
         with open(outputfile, 'w') as csvfile:
             writer = DictWriter(csvfile, keys, delimiter='\t', extrasaction='ignore')
             writer.writeheader()

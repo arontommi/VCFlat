@@ -166,10 +166,12 @@ def process_meta_dict(inputvcf):
     return meta_dict
 
 
-def populatevcfheader(input_vcf):
+def populatevcfheader(input_vcf, samplefield=None):
 
-    header = extract_header(input_vcf)
     metadict = process_meta_dict(input_vcf)
+    header = extract_header(input_vcf)
+    if samplefield:
+        header = header[:9] + [samplefield]
     vcf_header = VcfHeader(input_vcf,header,metadict)
 
     return vcf_header

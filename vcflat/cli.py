@@ -1,4 +1,4 @@
-from CsvOut import generatecsv
+from vcflat.CsvOut import generatecsv
 import click
 
 @click.command()
@@ -15,6 +15,11 @@ import click
     help='give it a sample',
 )
 @click.option(
+    "--samplefield",
+    help='gives the samplefields common names'
+)
+
+@click.option(
     '--keys',
     help='keys for columns'
 )
@@ -22,15 +27,15 @@ import click
     '--slowkeys',
     help='keys for columns',
     is_flag=True
-
 )
-def vcfflat(inputfile,outputfile,sample,keys,slowkeys):
+def vcfflat(inputfile,outputfile,samplefield,sample,keys,slowkeys):
     fastkeys = True
     if slowkeys:
         fastkeys = False
 
     generatecsv(inputfile,
                 outputfile,
+                samplefield=samplefield,
                 sample=sample,
                 keys=keys,
                 fastkeys=fastkeys)
