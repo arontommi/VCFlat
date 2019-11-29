@@ -5,7 +5,7 @@ import csv
 
 def generatecsv(input_vcf, outputfile,samplefield=None, sample=None,keys=False, fastkeys=True):
     vp = VcfParse(input_vcf,samplefield)
-    if keys:
+    if isinstance(keys, str):
         keys = keys.split()
         print( f'using these keys :{keys}')
         vp.write2csv(outputfile, keys, sample)
