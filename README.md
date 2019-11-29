@@ -13,7 +13,7 @@ please let me know if you try it out and if and how it failed
 
 basic run would look something like this:
 
-`python3 vcflat -i input_file -o output_file
+`python3 -m vcflat -i input_file -o output_file
 `
 
 vcflat uses the column keys from the first variant to generate the columns, if you want to get all possible columns
@@ -21,7 +21,7 @@ vcflat uses the column keys from the first variant to generate the columns, if y
 iterate through the whole vcf file before you can create the columns (so twice as slow)
 
 you can also use your own column keys and your own ordering of those keys by using:
-`--keys keys.txt` with keys.txt being a tab delimited file (all in one row)
+`--keys '#CROM POS..` with the column keys being separated by space
 
 I tend to run one vcf file with the `--slowkeys` flag and then pick relevant column names from there
 
@@ -30,8 +30,8 @@ I tend to run one vcf file with the `--slowkeys` flag and then pick relevant col
     -i              :   inputfile
     -o              :   outputfile
     -s              :   Samplename
-    -samplefield    :   any fields after the 8th column an example of input could be "Tumor","Normal"
-    -keys           :   key values for columns in a tab delimited file
+    -samplefield    :   any fields after the 8th column an example of input could be "Tumor Normal"
+    -keys           :   key values in quotes sepated by space "CHROM POS.. "
     -slowkeys       :   flag to create a column for each value in the vcf
 ```
 

@@ -1,16 +1,12 @@
 from vcflat.VcfParse import VcfParse
 import csv
 
-def keysfromfile(file):
-    with open(file) as tsv:
-        for line in csv.reader(tsv,delimiter='\t'):
-            return line
 
 
 def generatecsv(input_vcf, outputfile,samplefield=None, sample=None,keys=False, fastkeys=True):
     vp = VcfParse(input_vcf,samplefield)
     if keys:
-        keys = keysfromfile(keys)
+        keys = keys.split()
         print( f'using these keys :{keys}')
         vp.write2csv(outputfile, keys, sample)
     elif fastkeys:
