@@ -1,5 +1,5 @@
-cython>=0.23.3
 numpy
+cython>=0.23.3
 coloredlogs
-click>=6.7
-cyvcf2>=0.8.4
+click
+cyvcf2
