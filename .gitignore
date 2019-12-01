@@ -8,3 +8,4 @@ test
 pancakevcf/.DS_Store
 dist/
 vcflat.egg-info/
+build/
