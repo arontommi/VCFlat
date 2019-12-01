@@ -7,12 +7,17 @@ The idea is to be able to flatten any [vcf](https://samtools.github.io/hts-specs
 It is reccomended to filter before hand but since python generators are used,
 it shoud not take up all the memory.
 
-
+### install
  
 Since this project is still very much an ongoing project 
 please let me know if you try it out and if and how it failed
 
+you can try it out by pulling the docker image via docker hub
 
+` docker pull arontommi/vcflat:latest
+`
+
+### Running 
 basic run would look something like this:
 
 `python3 -m vcflat -i input_file -o output_file
