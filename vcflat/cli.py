@@ -29,6 +29,11 @@ import click
     is_flag=True
 )
 def vcfflat(inputfile,outputfile,samplefield,sample,keys,slowkeys):
+
+    if not inputfile or not outputfile:
+        print("Hey you need to make sure to have both an inputfile and an outputfile!")
+        exit()
+
     fastkeys = True
     if slowkeys:
         fastkeys = False
