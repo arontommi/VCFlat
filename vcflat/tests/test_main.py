@@ -5,7 +5,7 @@ import pandas as pd
 from vcflat.CsvOut import generatecsv
 
 class TestVcfParse(unittest.TestCase):
-
+    #TODO fix test, make more tests and each test simpler
     def setUp(self):
         self.HERE = os.path.dirname(__file__)
         self.VCF_PATH = os.path.join(self.HERE, "test.vcf.gz")
