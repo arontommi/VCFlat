@@ -4,7 +4,7 @@ import pprint as pp
 
 
 class VcfHeader(object):
-    """Class around meta information about vcf file as well as funtions to view it"""
+    """Class around meta information about vcf file as well as functions to view it"""
 
     input_vcf = ''
     header = []
