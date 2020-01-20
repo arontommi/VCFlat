@@ -14,7 +14,7 @@ def base_tests():
     return dictified
 
 def test_1():
-    """ checks that output is list """
+    """ checks that output is dict """
     assert type(base_tests()) is type(defaultdict())
 
 def test_2():
