@@ -111,8 +111,9 @@ def validate_meta(base_dict):
     Checks if INFO FORMAT and FILTER are in metainfo
     :return:
     """
+    #TODO error! should only return true if it finds all but seems return if only one of them is true
     metalist = [i for i in  base_dict]
-    includelist = ['INFO', 'FORMAT','FILTER']
+    includelist = ['INFO', 'FORMAT', 'FILTER']
     run_dict_chunking = True
     if set(includelist).issubset(metalist):
         pass
@@ -148,7 +149,7 @@ def generate_complete_dict(basedict,field,how_many):
 
 
 def process_meta_dict(inputvcf):
-
+    #TODO add error if validate_meta returns false (not a valid vcf)
     raw_header = get_raw_header(inputvcf)
     raw_header_popped = pop_header(raw_header)
     cleaned_meta = clean_meta(raw_header_popped)
