@@ -1,5 +1,5 @@
-FILTER	ALT	_VAF	QUAL	.	INFO	POS	ID	FORMAT	#CHROM	SSC00089_GT	SSC00089	REF
-PASS	G	0.5	.	True	{'.': 'True'}	176938646	.	GT	2	./.	{'SSC00089_GT': './.', '_VAF': 0.5}	A
-PASS	G	0.5	.	True	{'.': 'True'}	176938647	.	GT	2	.	{'SSC00089_GT': '.', '_VAF': 0.5}	A
-PASS	G	0.5	.	True	{'.': 'True'}	176938648	.	GT	2	.|.	{'SSC00089_GT': '.|.', '_VAF': 0.5}	A
-PASS	G	0.5	.	True	{'.': 'True'}	176938649	.	GT	2	0|0	{'SSC00089_GT': '0|0', '_VAF': 0.5}	A
+INFO	FORMAT	QUAL	.	SSC00089	Sample	REF	ID	SSC00089_GT	POS	#CHROM	ALT	FILTER
+{'.': 'True'}	GT	.	True	{'SSC00089_GT': './.'}	Sample	A	.	./.	176938646	2	G	PASS
+{'.': 'True'}	GT	.	True	{'SSC00089_GT': '.'}	Sample	A	.	.	176938647	2	G	PASS
+{'.': 'True'}	GT	.	True	{'SSC00089_GT': '.|.'}	Sample	A	.	.|.	176938648	2	G	PASS
+{'.': 'True'}	GT	.	True	{'SSC00089_GT': '0|0'}	Sample	A	.	0|0	176938649	2	G	PASS
