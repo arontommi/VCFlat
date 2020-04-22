@@ -15,7 +15,7 @@ def base_test_1():
     return validated
 
 def base_test_2():
-    i = get_input('invalid.vcf')
+    i = get_input('invalid_FORMAT.vcf')
     output = HE.get_raw_header(i)
     clean = HE.clean_meta(output)
     dictified = HE.dictify(clean)
@@ -24,11 +24,11 @@ def base_test_2():
 
 def test_1():
     """ validate that true is returned on a valid vcf """
-    assert base_test_1() is True
+    assert all(base_test_1().values()) is True
 
 def test_2():
     """ validate that false is returned on a invalid vcf """
-    assert base_test_2() is False
+    assert base_test_2()['FORMAT'] is False
 
 
 
