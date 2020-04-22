@@ -21,15 +21,15 @@ def base_test_2():
     output = HE.get_raw_header(i)
     clean = HE.clean_meta(output)
     dictified = HE.dictify(clean)
-    out = HE.custom_dict_chunking(dictified, "FORMAT", 3)
-    print(out['FORMAT'])
+    out = HE.custom_dict_chunking(dictified, "FILTER", 3)
+    print(out['FILTER'])
     return out
 
 
 def test_1():
-    """ mak """
+    """ test if string is split the correct way """
     assert len(base_test_1()['FILTER'][0]) is 2
 
 def test_2():
-    """ mak """
-    assert len(base_test_2()['FORMAT'][0][0]) is 4
+    """ test if string is split the wrong way  """
+    assert len(base_test_2()['FILTER'][0][0]) is not 4
