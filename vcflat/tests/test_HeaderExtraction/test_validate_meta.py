@@ -1,6 +1,6 @@
 import os
 import vcflat.HeaderExtraction as HE
-from collections import defaultdict
+
 def get_input(file):
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
     i = os.path.join(test_data_dir, f"{file}")
