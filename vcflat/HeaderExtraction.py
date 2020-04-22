@@ -122,6 +122,15 @@ def validate_meta(base_dict):
     return inmeta
 
 def custom_dict_chunking(basedict, field, how_many):
+    """
+    splits a dict value based on comma x amount of times
+
+    :param basedict: a dict with keys and messy values
+    :param field: what key to split in the dict
+    :param how_many: how many fields should remain after splitting
+    :return: clean dict (hopefully)
+    """
+
     new_dict_list = []
     for v in basedict[field]:
         new_dict_list.append(v.split(',', how_many))
@@ -142,8 +151,8 @@ def list2dict(basedict, field):
     return basedict
 
 def generate_complete_dict(basedict,field,how_many):
-    meta_dict = custom_dict_chunking(basedict,field, how_many)
-    meta_dict = list2dict(meta_dict,field)
+    dict_list = custom_dict_chunking(basedict,field, how_many)
+    meta_dict = list2dict(dict_list,field)
     return meta_dict
 
 
@@ -156,9 +165,6 @@ def process_meta_dict(inputvcf):
     chunk_dict = validate_meta(base_dict)
 
     meta_dict = {}
-
-
-
     if chunk_dict['INFO']:
         meta_dict = generate_complete_dict(base_dict, "INFO", 3)
     if chunk_dict['FORMAT']:
