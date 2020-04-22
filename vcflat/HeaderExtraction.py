@@ -108,19 +108,18 @@ def dictify(clean_list):
 
 def validate_meta(base_dict):
     """
-    Checks if INFO FORMAT and FILTER are in metainfo
+    Checks if INFO and FORMAT are in metainfo
     :return:
     """
-    #TODO error! should only return true if it finds all but seems return if only one of them is true
     metalist = [i for i in  base_dict]
-    includelist = ['INFO', 'FORMAT', 'FILTER']
-    run_dict_chunking = True
-    if set(includelist).issubset(metalist):
-        pass
-    else:
-        run_dict_chunking = False
-
-    return run_dict_chunking
+    includelist = ['INFO', 'FORMAT','FILTER']
+    inmeta = {}
+    for i in includelist:
+        if i in metalist:
+            inmeta[i] = True
+        else:
+            inmeta[i] = False
+    return inmeta
 
 def custom_dict_chunking(basedict, field, how_many):
     new_dict_list = []
@@ -149,7 +148,6 @@ def generate_complete_dict(basedict,field,how_many):
 
 
 def process_meta_dict(inputvcf):
-    #TODO add error if validate_meta returns false (not a valid vcf)
     raw_header = get_raw_header(inputvcf)
     raw_header_popped = pop_header(raw_header)
     cleaned_meta = clean_meta(raw_header_popped)
@@ -158,12 +156,15 @@ def process_meta_dict(inputvcf):
     chunk_dict = validate_meta(base_dict)
 
     meta_dict = {}
-    if chunk_dict:
-        for field in ['INFO', 'FORMAT']:
-            meta_dict =generate_complete_dict(base_dict,field, 3)
 
-        for field in ['FILTER']:
-            meta_dict = generate_complete_dict(meta_dict, field, 1)
+
+
+    if chunk_dict['INFO']:
+        meta_dict = generate_complete_dict(base_dict, "INFO", 3)
+    if chunk_dict['FORMAT']:
+        meta_dict = generate_complete_dict(base_dict, 'FORMAT', 3)
+    if chunk_dict['FILTER']:
+        meta_dict = generate_complete_dict(meta_dict, 'FILTER', 1)
     return meta_dict
 
 
