@@ -1,6 +1,7 @@
 import os
 from vcflat.HeaderExtraction import  get_raw_header , dictify, clean_meta
 from collections import defaultdict
+
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
     i = os.path.join(test_data_dir, "test.snpeff.vcf")
