@@ -7,7 +7,7 @@ from vcflat.CsvOut import generatecsv
 class TestVcfParse(unittest.TestCase):
     #TODO fix test, make more tests and each test simpler
     def setUp(self):
-        self.HERE = os.path.dirname(__file__)
+        self.HERE = os.path.join(os.path.dirname(__file__), 'test_data')
         self.VCF_PATH = os.path.join(self.HERE, "test.vcf.gz")
         self.output = os.path.join(self.HERE, "test.csv")
         generatecsv(self.VCF_PATH,outputfile=self.output, fastkeys=False)
@@ -24,6 +24,6 @@ class TestVcfParse(unittest.TestCase):
         test if final pandas dataframe is returned and in the correct shape
         """
         self.assertEqual(str(type(self.vp_1)), "<class 'pandas.core.frame.DataFrame'>")
-        self.assertEqual(self.vp_1.shape, (115, 2155))
+        self.assertEqual(self.vp_1.shape, (115, 2156))
 
 
