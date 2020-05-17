@@ -139,6 +139,13 @@ def custom_dict_chunking(basedict, field, how_many):
     return basedict
 
 def list2dict(basedict, field):
+    """
+    generates a dict from list by splitting up the key value pairs seperated by =
+    :param basedict: dict to work on
+    :param field:  field in dict to work on
+    :return: fixed dict
+    """
+
     list_from_dict = basedict[field]
     basedict[field] = {}
 
