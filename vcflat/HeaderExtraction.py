@@ -153,17 +153,29 @@ def list2dict(basedict, field):
         l4d = []
         for i in info_list:
             l4d.append(i.split("=",1)[1])
-
         basedict[field][l4d[0]] = l4d[1:]
     return basedict
 
 def generate_complete_dict(basedict,field,how_many):
+    """
+    basic wrapper function around generating nice dicts from nested data
+    :param basedict: original dict
+    :param field:  what field to extract
+    :param how_many: how many "chunks" to extract
+    :return: a nice structured dict
+    """
+
     dict_list = custom_dict_chunking(basedict,field, how_many)
     meta_dict = list2dict(dict_list,field)
     return meta_dict
 
 
 def process_meta_dict(inputvcf):
+    """
+    main parsing of the vcf header (everything that starts with ## into a nice dict of all meta information
+    :param inputvcf: basic VCF file
+    :return: a nice dict with all header elements and their subelements structured
+    """
     raw_header = get_raw_header(inputvcf)
     raw_header_popped = pop_header(raw_header)
     cleaned_meta = clean_meta(raw_header_popped)
@@ -182,7 +194,12 @@ def process_meta_dict(inputvcf):
 
 
 def populatevcfheader(input_vcf, samplefield=None):
+    """
+    returns a header on the original vcf
 
+    :param inputvcf: basic VCF file
+    :return: things that should be in the actual header of the vcf
+    """
     metadict = process_meta_dict(input_vcf)
     header = extract_header(input_vcf)
     if samplefield:
