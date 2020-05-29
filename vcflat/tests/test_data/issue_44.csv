@@ -1,5 +1,0 @@
-INFO	FORMAT	QUAL	.	SSC00089	Sample	REF	ID	SSC00089_GT	POS	#CHROM	ALT	FILTER
-{'.': 'True'}	GT	.	True	{'SSC00089_GT': './.'}	Sample	A	.	./.	176938646	2	G	PASS
-{'.': 'True'}	GT	.	True	{'SSC00089_GT': '.'}	Sample	A	.	.	176938647	2	G	PASS
-{'.': 'True'}	GT	.	True	{'SSC00089_GT': '.|.'}	Sample	A	.	.|.	176938648	2	G	PASS
-{'.': 'True'}	GT	.	True	{'SSC00089_GT': '0|0'}	Sample	A	.	0|0	176938649	2	G	PASS
