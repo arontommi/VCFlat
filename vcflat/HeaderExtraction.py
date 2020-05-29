@@ -195,7 +195,8 @@ def process_meta_dict(inputvcf):
 
 def populatevcfheader(input_vcf, samplefield=None):
     """
-    returns a header on the original vcf
+    returns a header on the original vcf with "samplefield" being the sample names (fields after the "INFO" samples)
+
 
     :param inputvcf: basic VCF file
     :return: things that should be in the actual header of the vcf
