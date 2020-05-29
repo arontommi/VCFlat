@@ -1,13 +1,13 @@
 import sys
 
-from vcflat.cli import vcfflat as cli
+from vcflat.cli import vcflat as cli
 
 """
 vcfflat.__main__
 ~~~~~~~~~~~~~~~~~~~~~
 The main entry point for the command line interface.
-Invoke as ``vcfflat`` (if installed)
-or ``python -m vcfflat`` (no install required).
+Invoke as ``vcflat`` (if installed)
+or ``python -m vcflat`` (no install required).
 """
 
 if __name__ == "__main__":
