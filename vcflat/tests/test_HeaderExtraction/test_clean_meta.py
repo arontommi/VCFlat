@@ -1,5 +1,5 @@
 import os
-from vcflat.HeaderExtraction import  get_raw_header, pop_header, clean_meta
+from vcflat.HeaderExtraction import get_raw_header, clean_meta
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
