@@ -7,7 +7,7 @@ from vcflat.HeaderExtraction import populatevcfheader
 class VcfParse:
     def __init__(self, input_vcf, samplefield):
         self.input_vcf = input_vcf
-        self.vcf_meta = populatevcfheader(self.input_vcf,samplefield)
+        self.vcf_meta = populatevcfheader(self.input_vcf, samplefield)
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
 
@@ -15,11 +15,6 @@ class VcfParse:
             self.csq_labels = self.get_csq_labels()
             self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
 
-
-
-
-
-    """Flag functions do determine what to run based on meta information information """
     def csq_flag(self):
         """
         Checks if the meta dict includes an INFO field and if the info has CSQ annotation
@@ -32,9 +27,8 @@ class VcfParse:
 
     def get_csq_labels(self):
         """extract csq labels from meta info"""
-        csq_labels = self.vcf_meta.meta_dict['INFO']['CSQ'][2].split(':',1)[1].split('|')
+        csq_labels = self.vcf_meta.meta_dict['INFO']['CSQ'][2].split(':', 1)[1].split('|')
         return csq_labels
-
 
     """Functions to deal with FORMAT and Sample columns of the vcf"""
 
@@ -46,18 +40,18 @@ class VcfParse:
         :return:
         """
         for nr, i in enumerate(ll[9:]):
-            ll[nr+9] = [ll[8],i]
+            ll[nr + 9] = [ll[8], i]
         return ll
 
     @staticmethod
-    def zipformat(ll,header_list):
+    def zipformat(ll, header_list):
         """
         zips together FORMAT labels, Sample name and format values into one dict
 
         """
         for nr, plist in enumerate(ll[9:]):
-            formatlist = [header_list[nr+9]+'_'+ i for i in plist[0].split(':')]
-            ll[nr + 9] = dict(zip(formatlist,plist[1].split(':')))
+            formatlist = [header_list[nr + 9] + '_' + i for i in plist[0].split(':')]
+            ll[nr + 9] = dict(zip(formatlist, plist[1].split(':')))
         return ll
 
     @staticmethod
@@ -71,12 +65,12 @@ class VcfParse:
             ldicts = dict()
             for k, v in i.items():
                 if len(v.split(',')) == 2:
-                    vsp = [ int(i) for i in v.split(',')]
-                    k_ra = [k+r for r in ra]
+                    vsp = [int(i) for i in v.split(',')]
+                    k_ra = [k + r for r in ra]
                     ndict = dict()
-                    for nk , nv in zip(k_ra, vsp):
+                    for nk, nv in zip(k_ra, vsp):
                         ndict[nk] = nv
-                    ldicts = {**ldicts,**ndict}
+                    ldicts = {**ldicts, **ndict}
             ll[nr + 9] = {**i, **ldicts}
 
         return ll
@@ -108,11 +102,6 @@ class VcfParse:
             else:
                 ll[nr + 9] = {**i, **ndict}
         return ll
-
-
-
-
-
 
     def format2samples(self, li):
         """
@@ -151,7 +140,7 @@ class VcfParse:
         if not li[7].get("CSQ"):
             return True
 
-    def parse_csq(self, li,csq_labels):
+    def parse_csq(self, li, csq_labels):
         ret_list = li.copy()
         flag = self.valdidate_csq(li)
         if not flag:
@@ -172,9 +161,7 @@ class VcfParse:
         listfromvcfline = [i.strip('\n') for i in str(line).split('\t')]
         return listfromvcfline
 
-
-
-    def parse_line_list(self,listfromvcfline):
+    def parse_line_list(self, listfromvcfline):
         li = self.format2samples(listfromvcfline)
         li = self.splitinfo(li)
         if self.csq:
@@ -185,7 +172,7 @@ class VcfParse:
     @staticmethod
     def flatten_d(d):
         mergeddict = dict()
-        for k,v in d.items():
+        for k, v in d.items():
             if type(v) is dict:
                 mergeddict.update(v)
         dd = {**d, **mergeddict}
@@ -193,11 +180,10 @@ class VcfParse:
 
     @staticmethod
     def add_sample(d, s):
-        d.update({"Sample" : s})
+        d.update({"Sample": s})
         return d
 
-
-    def parse(self,sample=None):
+    def parse(self, sample=None):
         s = 'Sample'
         if sample:
             s = sample
@@ -233,7 +219,7 @@ class VcfParse:
         dkeys = dict.fromkeys(l).keys()
         return dkeys
 
-    def write2csv(self, outputfile,keys, sample=None):
+    def dictify_keys(self, outputfile, keys, sample=None):
         pars = self.parse(sample)
         keys = self.dictify_keys(keys)
         with open(outputfile, 'w') as csvfile:
@@ -245,5 +231,3 @@ class VcfParse:
                 nr += 1
                 if nr % 10000 == 0:
                     print(f'{nr} processed')
-
-
