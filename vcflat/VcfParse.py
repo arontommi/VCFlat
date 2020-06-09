@@ -5,7 +5,7 @@ from vcflat.HeaderExtraction import populatevcfheader
 
 
 class VcfParse:
-    def __init__(self, input_vcf, samplefield):
+    def __init__(self, input_vcf, samplefield=None):
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf, samplefield)
         self.anno_field = self.check_for_annoations()
