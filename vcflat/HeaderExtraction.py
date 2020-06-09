@@ -214,5 +214,4 @@ def populatevcfheader(input_vcf, samplefield=None):
     if samplefield:
         header = header[:9] + [samplefield]
     vcf_header = VcfHeader(input_vcf, header, metadict)
-
     return vcf_header
