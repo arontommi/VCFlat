@@ -8,26 +8,36 @@ class VcfParse:
     def __init__(self, input_vcf, samplefield):
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf, samplefield)
+        self.anno_field = self.check_for_annoations()
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
-
         if self.csq:
             self.csq_labels = self.get_csq_labels()
             self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
+
+    def check_for_annoations(self):
+        for k, v in self.vcf_meta.meta_dict['INFO'].items():
+            for i in v:
+                if '|' in i:
+                    r = k
+                else:
+                    r = None
+        return r
 
     def csq_flag(self):
         """
         Checks if the meta dict includes an INFO field and if the info has CSQ annotation
         """
+
         if self.vcf_meta.meta_dict.get("INFO"):
-            if self.vcf_meta.meta_dict['INFO'].get('CSQ'):
+            if self.vcf_meta.meta_dict['INFO'].get(self.anno_field):
                 return True
         else:
             return False
 
     def get_csq_labels(self):
         """extract csq labels from meta info"""
-        csq_labels = self.vcf_meta.meta_dict['INFO']['CSQ'][2].split(':', 1)[1].split('|')
+        csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field][2].split(':', 1)[1].split('|')
         return csq_labels
 
     """Functions to deal with FORMAT and Sample columns of the vcf"""
@@ -214,6 +224,8 @@ class VcfParse:
     def dictify_keys(keys):
         """make sure that the input is in order and is in dict_key format"""
         l = []
+        #dkeys = dict.fromkeys([i for i in keys]).keys() <- simmpler way to add after creating tests
+
         for i in keys:
             l.append(i)
         dkeys = dict.fromkeys(l).keys()
