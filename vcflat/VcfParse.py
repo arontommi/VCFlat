@@ -8,14 +8,14 @@ class VcfParse:
     def __init__(self, input_vcf, samplefield=None):
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf, samplefield)
-        self.anno_field = self.check_for_annoations()
+        self.anno_field = self.check_for_annotations()
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
         if self.csq:
             self.csq_labels = self.get_csq_labels()
             self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
 
-    def check_for_annoations(self):
+    def check_for_annotations(self):
         for k, v in self.vcf_meta.meta_dict['INFO'].items():
             for i in v:
                 if '|' in i:
@@ -40,88 +40,12 @@ class VcfParse:
         csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field][2].split(':', 1)[1].split('|')
         return csq_labels
 
-    """Functions to deal with FORMAT and Sample columns of the vcf"""
-
-    @staticmethod
-    def nestlists(ll):
-        """
-        adds FORMAT labels with format values in sample columns
-        :param ll:
-        :return:
-        """
-        for nr, i in enumerate(ll[9:]):
-            ll[nr + 9] = [ll[8], i]
-        return ll
-
-    @staticmethod
-    def zipformat(ll, header_list):
-        """
-        zips together FORMAT labels, Sample name and format values into one dict
-
-        """
-        for nr, plist in enumerate(ll[9:]):
-            formatlist = [header_list[nr + 9] + '_' + i for i in plist[0].split(':')]
-            ll[nr + 9] = dict(zip(formatlist, plist[1].split(':')))
-        return ll
-
-    @staticmethod
-    def split_ref_alt(ll):
-        """
-        splits FORMAT elements that has two values into REF and ALT
-
-        """
-        ra = ['_REF', '_ALT']
-        for nr, i in enumerate(ll[9:]):
-            ldicts = dict()
-            for k, v in i.items():
-                if len(v.split(',')) == 2:
-                    vsp = [int(i) for i in v.split(',')]
-                    k_ra = [k + r for r in ra]
-                    ndict = dict()
-                    for nk, nv in zip(k_ra, vsp):
-                        ndict[nk] = nv
-                    ldicts = {**ldicts, **ndict}
-            ll[nr + 9] = {**i, **ldicts}
-
-        return ll
-
-    @staticmethod
-    def generate_vaf(ll):
-        """
-        Creates VAF tab (variant allele frequency) AD_ALT / (AD_REF + AD_ALT)
-        """
-        for nr, i in enumerate(ll[9:]):
-            refdp = 1
-            altdp = 1
-            ndict = {}
-            sample = ''
-            for k, v in i.items():
-                if k.endswith("AD_REF"):
-                    refdp = v
-                    sample = k.strip("AD_REF")
-                if k.endswith("AD_ALT"):
-                    altdp = v
-                totdp = refdp + altdp
-                try:
-                    vaf = altdp / totdp
-                except ZeroDivisionError:
-                    vaf = 0
-                ndict = {f'{sample}_VAF': vaf}
-            if sample == '':
-                pass
-            else:
-                ll[nr + 9] = {**i, **ndict}
-        return ll
-
     def format2samples(self, li):
         """
         master function to parse FORMAT and sample elements of each vcf line
 
         """
-        li = self.nestlists(li)
-        li = self.zipformat(li, header_list=self.vcf_meta.header)
-        li = self.split_ref_alt(li)
-        li = self.generate_vaf(li)
+        li = generate_vaf(split_ref_alt(zipformat(nestlists(li), header_list=self.vcf_meta.header)))
         return li
 
     """Functions to deal with The Info column of the vcf"""
@@ -243,3 +167,68 @@ class VcfParse:
                 nr += 1
                 if nr % 10000 == 0:
                     print(f'{nr} processed')
+
+
+def nestlists(ll):
+    """
+    adds FORMAT labels with format values in sample columns
+    :param ll:
+    :return:
+    """
+    for nr, i in enumerate(ll[9:]):
+        ll[nr + 9] = [ll[8], i]
+    return ll
+
+def zipformat(ll, header_list):
+    """
+    zips together FORMAT labels, Sample name and format values into one dict
+    """
+    for nr, plist in enumerate(ll[9:]):
+        formatlist = [header_list[nr + 9] + '_' + i for i in plist[0].split(':')]
+        ll[nr + 9] = dict(zip(formatlist, plist[1].split(':')))
+    return ll
+
+def split_ref_alt(ll):
+    """
+    splits FORMAT elements that has two values into REF and ALT
+    """
+    ra = ['_REF', '_ALT']
+    for nr, i in enumerate(ll[9:]):
+        ldicts = dict()
+        for k, v in i.items():
+            if len(v.split(',')) == 2:
+                vsp = [int(i) for i in v.split(',')]
+                k_ra = [k + r for r in ra]
+                ndict = dict()
+                for nk, nv in zip(k_ra, vsp):
+                    ndict[nk] = nv
+                ldicts = {**ldicts, **ndict}
+        ll[nr + 9] = {**i, **ldicts}
+    return ll
+
+def generate_vaf(ll):
+    """
+    Creates VAF tab (variant allele frequency) AD_ALT / (AD_REF + AD_ALT)
+    """
+    for nr, i in enumerate(ll[9:]):
+        refdp = 1
+        altdp = 1
+        ndict = {}
+        sample = ''
+        for k, v in i.items():
+            if k.endswith("AD_REF"):
+                refdp = v
+                sample = k.strip("AD_REF")
+            if k.endswith("AD_ALT"):
+                altdp = v
+            totdp = refdp + altdp
+            try:
+                vaf = altdp / totdp
+            except ZeroDivisionError:
+                vaf = 0
+            ndict = {f'{sample}_VAF': vaf}
+        if sample == '':
+            pass
+        else:
+            ll[nr + 9] = {**i, **ndict}
+    return ll
