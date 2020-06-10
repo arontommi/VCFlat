@@ -231,7 +231,7 @@ class VcfParse:
         dkeys = dict.fromkeys(l).keys()
         return dkeys
 
-    def dictify_keys(self, outputfile, keys, sample=None):
+    def write2csv(self, outputfile, keys, sample=None):
         pars = self.parse(sample)
         keys = self.dictify_keys(keys)
         with open(outputfile, 'w') as csvfile:
