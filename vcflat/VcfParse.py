@@ -40,50 +40,6 @@ class VcfParse:
         csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field][2].split(':', 1)[1].split('|')
         return csq_labels
 
-    def format2samples(self, li):
-        """
-        master function to parse FORMAT and sample elements of each vcf line
-
-        """
-        li = generate_vaf(split_ref_alt(zipformat(nestlists(li), header_list=self.vcf_meta.header)))
-        return li
-
-    """Functions to deal with The Info column of the vcf"""
-
-    @staticmethod
-    def splitinfo(li):
-        """ Splits the INFO column and generates a dict"""
-        defdi = dict()
-        for i in li[7].split(';'):
-            if '=' not in i:
-                defdi[i] = 'True'
-            else:
-                l4d = i.split('=')
-                defdi[l4d[0]] = l4d[1]
-        li[7] = defdi
-        return li
-
-    @staticmethod
-    def valdidate_csq(li):
-        """
-        Validates that INFO column has the csq dict.
-        :param li:
-        :return:
-        """
-
-        if not li[7].get("CSQ"):
-            return True
-
-    def parse_csq(self, li, csq_labels):
-        ret_list = li.copy()
-        flag = self.valdidate_csq(li)
-        if not flag:
-            for infolist in li[7]['CSQ'].split(','):
-                nl = li.copy()
-                z = dict(zip(csq_labels, infolist.split('|')))
-                nl.append(z)
-                ret_list = nl
-        return ret_list
 
     @staticmethod
     def read_vcf(input_vcf):
@@ -95,11 +51,15 @@ class VcfParse:
         listfromvcfline = [i.strip('\n') for i in str(line).split('\t')]
         return listfromvcfline
 
-    def parse_line_list(self, listfromvcfline):
-        li = self.format2samples(listfromvcfline)
-        li = self.splitinfo(li)
+    def parse_line_list(self,listfromvcfline ):
+        li = nestlists(listfromvcfline)
+        li = zipformat(li, header_list=self.vcf_meta.header)
+        li = split_ref_alt(li)
+        li = generate_vaf(li)
+        li = splitinfo(li)
         if self.csq:
-            li = self.parse_csq(li, self.csq_labels)
+            li = parse_csq(li, self.csq_labels, self.anno_field)
+
         d = {k: v for k, v in zip(self.vcf_header_extended, li)}
         return d
 
@@ -232,3 +192,35 @@ def generate_vaf(ll):
         else:
             ll[nr + 9] = {**i, **ndict}
     return ll
+
+def splitinfo(li):
+    """ Splits the INFO column and generates a dict"""
+    defdi = dict()
+    for i in li[7].split(';'):
+        if '=' not in i:
+            defdi[i] = 'True'
+        else:
+            l4d = i.split('=')
+            defdi[l4d[0]] = l4d[1]
+    li[7] = defdi
+    return li
+
+def valdidate_csq(li, anno_field):
+    """
+    Validates that INFO column has the csq dict.
+
+    """
+
+    if not li[7].get(anno_field):
+        return True
+
+def parse_csq(li, csq_labels, anno_field):
+    ret_list = li.copy()
+    flag = valdidate_csq(li, anno_field)
+    if not flag:
+        for infolist in li[7][anno_field].split(','):
+            nl = li.copy()
+            z = dict(zip(csq_labels, infolist.split('|')))
+            nl.append(z)
+            ret_list = nl
+    return ret_list
