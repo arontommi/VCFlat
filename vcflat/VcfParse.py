@@ -42,11 +42,6 @@ class VcfParse:
 
 
     @staticmethod
-    def read_vcf(input_vcf):
-        vcf_file = VCF('{}'.format(input_vcf), strict_gt=True)
-        return vcf_file
-
-    @staticmethod
     def split_line(line):
         listfromvcfline = [i.strip('\n') for i in str(line).split('\t')]
         return listfromvcfline
@@ -81,7 +76,7 @@ class VcfParse:
         s = 'Sample'
         if sample:
             s = sample
-        vcf_file = self.read_vcf(self.input_vcf)
+        vcf_file = VCF('{}'.format(self.input_vcf), strict_gt=True)
         for i in vcf_file:
             line = self.split_line(i)
             return_li = self.parse_line_list(line)
