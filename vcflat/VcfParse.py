@@ -41,10 +41,7 @@ class VcfParse:
         return csq_labels
 
 
-    @staticmethod
-    def split_line(line):
-        listfromvcfline = [i.strip('\n') for i in str(line).split('\t')]
-        return listfromvcfline
+
 
     def parse_line_list(self,listfromvcfline ):
         li = nestlists(listfromvcfline)
@@ -77,9 +74,9 @@ class VcfParse:
         if sample:
             s = sample
         vcf_file = VCF('{}'.format(self.input_vcf), strict_gt=True)
-        for i in vcf_file:
-            line = self.split_line(i)
-            return_li = self.parse_line_list(line)
+        for line in vcf_file:
+            split_line = [i.strip('\n') for i in str(line).split('\t')]
+            return_li = self.parse_line_list(split_line)
             merged = self.flatten_d(return_li)
             sample_added = self.add_sample(merged, s)
             yield sample_added
