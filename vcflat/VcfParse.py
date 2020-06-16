@@ -5,9 +5,9 @@ from vcflat.HeaderExtraction import populatevcfheader
 
 
 class VcfParse:
-    def __init__(self, input_vcf, samplefield=None):
+    def __init__(self, input_vcf):
         self.input_vcf = input_vcf
-        self.vcf_meta = populatevcfheader(self.input_vcf, samplefield)
+        self.vcf_meta = populatevcfheader(self.input_vcf)
         self.anno_field = self.check_for_annotations()
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
@@ -23,6 +23,7 @@ class VcfParse:
                 else:
                     r = None
         return r
+
 
     def csq_flag(self):
         """
@@ -41,9 +42,12 @@ class VcfParse:
         return csq_labels
 
 
-
-
-    def parse_line_list(self,listfromvcfline ):
+    def parse_line_list(self,listfromvcfline):
+        """
+        goes through the later fields in the vcf and parses them
+        :param listfromvcfline:
+        :return:
+        """
         li = nestlists(listfromvcfline)
         li = zipformat(li, header_list=self.vcf_meta.header)
         li = split_ref_alt(li)
@@ -55,14 +59,7 @@ class VcfParse:
         d = {k: v for k, v in zip(self.vcf_header_extended, li)}
         return d
 
-    @staticmethod
-    def flatten_d(d):
-        mergeddict = dict()
-        for k, v in d.items():
-            if type(v) is dict:
-                mergeddict.update(v)
-        dd = {**d, **mergeddict}
-        return dd
+
 
     @staticmethod
     def add_sample(d, s):
@@ -77,7 +74,7 @@ class VcfParse:
         for line in vcf_file:
             split_line = [i.strip('\n') for i in str(line).split('\t')]
             return_li = self.parse_line_list(split_line)
-            merged = self.flatten_d(return_li)
+            merged = flatten_d(return_li)
             sample_added = self.add_sample(merged, s)
             yield sample_added
 
@@ -216,3 +213,16 @@ def parse_csq(li, csq_labels, anno_field):
             nl.append(z)
             ret_list = nl
     return ret_list
+
+def flatten_d(d):
+    """
+    collects and flattens nested dicts ( unnesting )
+    :param d: nested dict
+    :return: unnested dict
+    """
+    mergeddict = dict()
+    for k, v in d.items():
+        if type(v) is dict:
+            mergeddict.update(v)
+    dd = {**d, **mergeddict}
+    return dd
