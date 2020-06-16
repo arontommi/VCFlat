@@ -10,7 +10,7 @@ def get_input():
 
 def base_tests():
     i = get_input()
-    vcffile = VP.VcfParse(i,'Name')
+    vcffile = VP.VcfParse(i)
     return vcffile
 
 
