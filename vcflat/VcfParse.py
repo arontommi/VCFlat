@@ -41,7 +41,6 @@ class VcfParse:
         csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field][2].split(':', 1)[1].split('|')
         return csq_labels
 
-
     def parse_line_list(self,listfromvcfline):
         """
         goes through the later fields in the vcf and parses them
@@ -60,12 +59,6 @@ class VcfParse:
         return d
 
 
-
-    @staticmethod
-    def add_sample(d, s):
-        d.update({"Sample": s})
-        return d
-
     def parse(self, sample=None):
         s = 'Sample'
         if sample:
@@ -75,8 +68,8 @@ class VcfParse:
             split_line = [i.strip('\n') for i in str(line).split('\t')]
             return_li = self.parse_line_list(split_line)
             merged = flatten_d(return_li)
-            sample_added = self.add_sample(merged, s)
-            yield sample_added
+            merged.update({"Sample": s})
+            yield merged
 
     """functions to extract column headers"""
 
