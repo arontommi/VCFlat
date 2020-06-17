@@ -1,6 +1,7 @@
 import vcflat.VcfParse as VP
 import os
 
+
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
     i = os.path.join(test_data_dir, "test.snpeff.vcf")
@@ -9,9 +10,8 @@ def get_input():
 
 
 def base_tests():
-    file  = get_input()
+    file = get_input()
     first_line = next(file.parse())
-    print(print(list(first_line.keys())))
 
     return first_line
 
