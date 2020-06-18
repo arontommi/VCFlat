@@ -83,24 +83,14 @@ class VcfParse:
     def get_header_fast(self):
         pars = self.parse()
         first_line = next(pars)
-        keys = first_line.keys()
+        keys = set(first_line.keys())
         return keys
 
-    @staticmethod
-    def dictify_keys(keys):
-        """make sure that the input is in order and is in dict_key format"""
-        l = []
-        #dkeys = dict.fromkeys([i for i in keys]).keys() <- simmpler way to add after creating tests
 
-        for i in keys:
-            l.append(i)
-        dkeys = dict.fromkeys(l).keys()
-        return dkeys
-
-    def write2csv(self, outputfile, keys, sample=None):
+    def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample)
-        keys = self.dictify_keys(keys)
-        with open(outputfile, 'w') as csvfile:
+        keys = dict.fromkeys([i for i in keys]).keys()
+        with open(out, 'w') as csvfile:
             writer = DictWriter(csvfile, keys, delimiter='\t', extrasaction='ignore')
             writer.writeheader()
             nr = 0
