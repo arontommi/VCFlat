@@ -1,6 +1,6 @@
-from vcflat.VcfParse import VcfParse
-
 import click
+
+import vcflat.VcfParse as VP
 
 @click.command()
 @click.option(
@@ -30,43 +30,31 @@ import click
     flag_value=True
 )
 def vcflat(inputfile, outputfile,samplefield=None, sample=None,keys=False, slowkeys=True):
-    """
-    Core function about handling input files
 
-    :param inputfile: Any kind of VCF file
-    :param outputfile: name of the output file
-    :param samplefield: fields after the "INFO" samples
-    :param sample: Sample is the name of the specimen so that you can combine multiple vcfs into one csv
-    :param keys: what keys to select from the vcf file
-    :param slowkeys: if you just want to use all keys from the first line of the vcf
-    :return: hopefully a nice csv file
-    """
-
-    vp = VcfParse(inputfile, samplefield)
-    if not inputfile or not outputfile:
+    if not inputfile:
         print("""
-            Hey you need to make sure to have both an inputfile and an outputfile! please use vcflat --help 
+            Hey you need to make sure to have an inputfile! please use vcflat --help 
             to get more information
             """
               )
         exit()
+    vp = VP.VcfParse(inputfile)
     if isinstance(keys, str):
         keys = keys.split()
         print( f'using these keys :{keys}')
-        vp.write2csv(outputfile, keys, sample)
     elif slowkeys:
         print("Since no keys were given, all keys need to be determined "
               "and they will all be spit out")
         keys = vp.get_header()
         print(f'using these keys :{keys}')
-        vp.write2csv(outputfile, keys, sample)
     else:
         print("using the first row to determine column names, "
-              "if you are missing something, use fastkeys=False")
+              "if you are missing something, use slowkeys=True")
         keys = vp.get_header_fast()
 
         print(f'using these keys :{keys}')
-        vp.write2csv(outputfile, keys, sample)
+    vp.write2csv(outputfile, keys, sample)
+
 
 if __name__ == '__main__':
     vcflat()

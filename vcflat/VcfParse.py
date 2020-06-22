@@ -100,7 +100,6 @@ class VcfParse:
                 if nr % 10000 == 0:
                     print(f'{nr} processed')
 
-
 def nestlists(ll):
     """
     adds FORMAT labels with format values in sample columns
