@@ -15,8 +15,7 @@ class VcfHeader(object):
         self.header = header
         self.meta_dict = meta_dict
 
-
-    def pprint_meta(self,key=False):
+    def pprint_meta(self, key=False):
 
         if key:
 
@@ -24,17 +23,18 @@ class VcfHeader(object):
                 print(f'\n'
                       f'Printing out the values from the meta dict for {key}\n'
                       f'Starts with a key and then gives a info for the output\n')
-                for k,v in self.meta_dict[key].items():
+                for k, v in self.meta_dict[key].items():
                     print(f"Key = {k} : Values = {v}")
             except AttributeError:
                 print(f'Seems like the key value pairs did not play nicely for {key} \n'
                       'but here is the output anyway ')
                 print(self.meta_dict[key])
         else:
-            pp.pprint(self.meta_dict,depth=1)
+            pp.pprint(self.meta_dict, depth=1)
 
     def determine_keys(self):
         pass
+
 
 def get_raw_header(input_vcf):
     """
@@ -45,6 +45,7 @@ def get_raw_header(input_vcf):
     raw_vcf_header_list = [header_line for header_line in vcf_file.raw_header.split("\n") if header_line]
 
     return raw_vcf_header_list
+
 
 def extract_header(input_vcf):
     """
@@ -57,6 +58,7 @@ def extract_header(input_vcf):
         if i.startswith('#CHROM'):
             vcf_header = [ii for ii in i.split('\t')]
     return vcf_header
+
 
 def pop_header(raw_header):
     """
@@ -80,11 +82,12 @@ def clean_meta(unclean_list):
             i = i.rstrip('>')
             i = i.replace('##', '')
             ii = i.split('=<', 1)
-        else :
+        else:
             i = i.replace('##', '')
             ii = i.split('=', 1)
         clean_list.append(ii)
     return clean_list
+
 
 def dictify(clean_list):
     """
@@ -111,8 +114,8 @@ def validate_meta(base_dict):
     Checks if INFO and FORMAT are in metainfo
     :return:
     """
-    metalist = [i for i in  base_dict]
-    includelist = ['INFO', 'FORMAT','FILTER']
+    metalist = [i for i in base_dict]
+    includelist = ['INFO', 'FORMAT', 'FILTER']
     inmeta = {}
     for i in includelist:
         if i in metalist:
@@ -120,6 +123,7 @@ def validate_meta(base_dict):
         else:
             inmeta[i] = False
     return inmeta
+
 
 def custom_dict_chunking(basedict, field, how_many):
     """
@@ -138,6 +142,7 @@ def custom_dict_chunking(basedict, field, how_many):
 
     return basedict
 
+
 def list2dict(basedict, field):
     """
     generates a dict from list by splitting up the key value pairs seperated by =
@@ -152,11 +157,12 @@ def list2dict(basedict, field):
     for info_list in list_from_dict:
         l4d = []
         for i in info_list:
-            l4d.append(i.split("=",1)[1])
+            l4d.append(i.split("=", 1)[1])
         basedict[field][l4d[0]] = l4d[1:]
     return basedict
 
-def generate_complete_dict(basedict,field,how_many):
+
+def generate_complete_dict(basedict, field, how_many):
     """
     basic wrapper function around generating nice dicts from nested data
     :param basedict: original dict
@@ -165,8 +171,9 @@ def generate_complete_dict(basedict,field,how_many):
     :return: a nice structured dict
     """
 
-    dict_list = custom_dict_chunking(basedict,field, how_many)
-    meta_dict = list2dict(dict_list,field)
+    dict_list = custom_dict_chunking(basedict, field, how_many)
+    meta_dict = list2dict(dict_list, field)
+
     return meta_dict
 
 
@@ -198,15 +205,13 @@ def populatevcfheader(input_vcf, samplefield=None):
     returns a header on the original vcf with "samplefield" being the sample names (fields after the "INFO" samples)
 
 
-    :param inputvcf: basic VCF file
+    :param input_vcf: basic VCF file
+    :param samplefield: samplenames
     :return: things that should be in the actual header of the vcf
     """
     metadict = process_meta_dict(input_vcf)
     header = extract_header(input_vcf)
     if samplefield:
         header = header[:9] + [samplefield]
-    vcf_header = VcfHeader(input_vcf,header,metadict)
-
+    vcf_header = VcfHeader(input_vcf, header, metadict)
     return vcf_header
-
-
