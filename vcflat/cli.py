@@ -2,7 +2,7 @@ import click
 
 import vcflat.VcfParse as VP
 
-@click.command()
+@click.command(context_settings={'help_option_names':['-h','--help']})
 @click.option(
     '--inputfile', '-i',
     help=' VCF file ',
