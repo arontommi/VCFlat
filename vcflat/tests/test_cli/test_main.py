@@ -10,13 +10,14 @@ def get_input():
     output = os.path.join(os.path.join(os.path.dirname(__file__), '..', 'test_data'), 'out.csv')
     return input, output
 
-def base_tests():
+def test_1():
+    "Simple 'does this file create the file at correct place'"
     input, output = get_input()
     keys = "'CHROM POS'"
     os.system(f' python -m vcflat -i {input} -o {output} --keys {keys}')
-    return output
-
-def test_1():
-    output = base_tests()
     assert os.path.isfile(output) is True
     os.remove(output)
+
+def test_2():
+    exit_status = os.system('python -m vcflat --help')
+    assert exit_status == 0
