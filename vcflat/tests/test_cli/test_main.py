@@ -19,5 +19,7 @@ def test_1():
     os.remove(output)
 
 def test_2():
-    exit_status = os.system('python -m vcflat --help')
-    assert exit_status == 0
+    exit_status_help = os.system('python -m vcflat --help')
+    exit_status_h = os.system('python -m vcflat -h')
+    assert exit_status_help == 0
+    assert exit_status_h == 0
