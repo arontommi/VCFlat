@@ -1,4 +1,4 @@
-import os
+import os, csv
 
 
 pytest_plugins = ["pytester"]
@@ -23,3 +23,26 @@ def test_2():
     exit_status_h = os.system('python -m vcflat -h')
     assert exit_status_help == 0
     assert exit_status_h == 0
+
+def test_3():
+    """ Test key if correct keys are in the csv returned"""
+    input, output = get_input()
+    keys = "'CHROM POS'"
+    os.system(f' python -m vcflat -i {input} -o {output} --keys {keys}')
+
+    with open(output, 'r') as f:
+        reader = csv.DictReader(f)
+        assert keys[1:-1].split() == reader.fieldnames[0].split('\t')
+    os.remove(output)
+
+def test_4():
+    """ Test key if correct keys are in the csv returned"""
+    input, output = get_input()
+    with open('../test_data/main_test4_keys.txt') as f:
+        returnkeys = f.read().splitlines()
+    os.system(f' python -m vcflat -i {input} -o {output}')
+
+    with open(output, 'r') as f:
+        reader = csv.DictReader(f)
+        assert set(returnkeys).issubset(set((reader.fieldnames[0].split('\t'))))
+    os.remove(output)

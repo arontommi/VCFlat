@@ -16,10 +16,6 @@ import vcflat.VcfParse as VP
     help='I you want to rename the samples to something smart',
 )
 @click.option(
-    "--samplefield",
-    help='gives the samplefields common names'
-)
-@click.option(
     '--keys',
     help='keys for columns, select columns to extract and use in the output file'
 )
@@ -29,7 +25,7 @@ import vcflat.VcfParse as VP
     is_flag=True,
     flag_value=True
 )
-def vcflat(inputfile, outputfile,samplefield=None, sample=None,keys=False, slowkeys=True):
+def vcflat(inputfile, outputfile, sample=None,keys=False, slowkeys=True):
 
     if not inputfile:
         print("""
@@ -38,6 +34,7 @@ def vcflat(inputfile, outputfile,samplefield=None, sample=None,keys=False, slowk
             """
               )
         exit()
+
     vp = VP.VcfParse(inputfile)
     if isinstance(keys, str):
         keys = keys.split()
