@@ -1,6 +1,6 @@
 import click
 
-import vcflat.VcfParse as VP
+from  vcflat.OutputHandle import OutputHandle
 
 @click.command(context_settings={'help_option_names':['-h','--help']})
 @click.option(
@@ -26,31 +26,11 @@ import vcflat.VcfParse as VP
     flag_value=True
 )
 def vcflat(inputfile, outputfile, sample=None,keys=False, slowkeys=True):
-
-    if not inputfile:
-        print("""
-            Hey you need to make sure to have an inputfile! please use vcflat --help 
-            to get more information
-            """
-              )
-        exit()
-
-    vp = VP.VcfParse(inputfile)
-    if isinstance(keys, str):
-        keys = keys.split()
-        print( f'using these keys :{keys}')
-    elif slowkeys:
-        print("Since no keys were given, all keys need to be determined "
-              "and they will all be spit out")
-        keys = vp.get_header()
-        print(f'using these keys :{keys}')
-    else:
-        print("using the first row to determine column names, "
-              "if you are missing something, use slowkeys=True")
-        keys = vp.get_header_fast()
-
-        print(f'using these keys :{keys}')
-    vp.write2csv(outputfile, keys, sample)
+    OutputHandle(inputfile=inputfile,
+                 outputfile=outputfile,
+                 sample=sample,
+                 keys=keys,
+                 slowkeys=slowkeys)
 
 
 if __name__ == '__main__':
