@@ -14,7 +14,7 @@ def test_1():
     "Simple 'does this file create the file at correct place'"
     input, output = get_input()
     keys = "'CHROM POS'"
-    os.system(f' python -m vcflat -i {input} -o {output} --keys {keys}')
+    os.system(f' python3 -m vcflat -i {input} -o {output} --keys {keys}')
     assert os.path.isfile(output) is True
     os.remove(output)
 
@@ -38,7 +38,7 @@ def test_3():
 def test_4():
     """ Test key if correct keys are in the csv returned"""
     input, output = get_input()
-    with open('../test_data/main_test4_keys.txt') as f:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'test_data','main_test4_keys.txt')) as f:
         returnkeys = f.read().splitlines()
     os.system(f' python -m vcflat -i {input} -o {output}')
 
