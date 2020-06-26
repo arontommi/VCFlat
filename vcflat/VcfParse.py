@@ -1,3 +1,4 @@
+import sys
 from csv import DictWriter
 from cyvcf2 import VCF
 
@@ -90,15 +91,12 @@ class VcfParse:
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample)
         keys = dict.fromkeys([i for i in keys]).keys()
-        with open(out, 'w') as csvfile:
+        with (open(out, 'w') if out else sys.stdout) as csvfile:
             writer = DictWriter(csvfile, keys, delimiter='\t', extrasaction='ignore')
             writer.writeheader()
-            nr = 0
             for line in pars:
                 writer.writerow(line)
-                nr += 1
-                if nr % 10000 == 0:
-                    print(f'{nr} processed')
+
 
 def nestlists(ll):
     """
