@@ -1,6 +1,7 @@
 import sys
 from csv import DictWriter
 from cyvcf2 import VCF
+from itertools import tee
 
 from vcflat.HeaderExtraction import populatevcfheader
 
@@ -87,6 +88,15 @@ class VcfParse:
         keys = set(first_line.keys())
         return keys
 
+    def sanitize_keys(self, keys):
+        allkeys = self.get_header()
+        keyset = set(keys.split())
+        if keyset.issubset(allkeys):
+            return keys.split()
+        else:
+            print(f' these keys are not found in the vcf file {str(keyset.difference(allkeys))}')
+            sys.exit(f' these keys are not found in the vcf file {str(keyset.difference(allkeys))} please check your \ '
+                     f'key input')
 
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample)

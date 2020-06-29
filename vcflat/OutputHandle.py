@@ -5,7 +5,7 @@ class OutputHandle:
     def __init__(self, inputfile,outputfile, keys=None, slowkeys=True, sample="Sample"):
         vcffile = VcfParse(inputfile)
         if keys:
-            keylist = keys.split()
+            keylist = vcffile.sanitize_keys(keys=keys)
         elif slowkeys:
             keylist = vcffile.get_header()
         else:
