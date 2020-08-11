@@ -94,9 +94,9 @@ class VcfParse:
         if keyset.issubset(allkeys):
             return keys.split()
         else:
-            print(f' these keys are not found in the vcf file {str(keyset.difference(allkeys))}')
-            sys.exit(f' these keys are not found in the vcf file {str(keyset.difference(allkeys))} please check your \ '
-                     f'key input')
+            raise SystemExit(f' these keys are not found in the vcf file: {"".join([i for i in  keyset.difference(allkeys)])} \n'
+                     f' please check your key input')
+
 
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample)

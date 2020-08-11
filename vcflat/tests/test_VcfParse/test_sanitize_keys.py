@@ -1,6 +1,6 @@
 import vcflat.VcfParse as VP
 import os
-
+import pytest
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
@@ -15,9 +15,12 @@ def test_1():
     sanitized_keys = vcffile.sanitize_keys(keys)
     assert sanitized_keys == ["#CHROM",'POS']
 
-def test_2():
-    """ return None since the key is not in the vcf file"""
+def test_2(capsys):
+    """ assert an error if a key is not found"""
     vcffile = get_input()
     keys = '#CHROM POS Wrong_key'
-    sanitized_keys = vcffile.sanitize_keys(keys)
-    assert sanitized_keys is None
+    vcffile.sanitize_keys(keys)
+
+    out, err = capsys.readouterr()
+    print(out, err)
+    assert out == 0
