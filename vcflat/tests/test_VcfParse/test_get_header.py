@@ -4,7 +4,7 @@ import os
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
-    i = os.path.join(test_data_dir, "test.snpeff.vcf")
+    i = os.path.join(test_data_dir, "test-hemi.vcf")
     vcffile = VP.VcfParse(i)
     return vcffile
 
@@ -20,4 +20,4 @@ def test_1():
 
 
 def test_2():
-    assert len(base_tests()) is 74
+    assert len(base_tests()) == 282

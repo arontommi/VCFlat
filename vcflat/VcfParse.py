@@ -13,8 +13,9 @@ class VcfParse:
         self.anno_fields = self.check_for_annotations()
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
-        if self.csq:
-            self.csq_labels = self.get_csq_labels()
+        if "CSQ" in self.anno_fields:
+            self.csq = True
+            self.csq_labels = self.get_csq_labels('CSQ')
             self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
 
     def check_for_annotations(self):
@@ -33,14 +34,14 @@ class VcfParse:
         """
 
         if self.vcf_meta.meta_dict.get("INFO"):
-            if self.vcf_meta.meta_dict['INFO'].get(self.anno_fields[0]):
+            if self.vcf_meta.meta_dict['INFO'].get('CSQ'):
                 return True
         else:
             return False
 
-    def get_csq_labels(self):
+    def get_csq_labels(self,anno_flag):
         """extract csq labels from meta info"""
-        csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_fields[0]][2].split(':', 1)[1].split('|')
+        csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag][2].split(':', 1)[1].split('|')
         return csq_labels
 
     def parse_line_list(self,listfromvcfline):
@@ -55,7 +56,7 @@ class VcfParse:
         li = generate_vaf(li)
         li = splitinfo(li)
         if self.csq:
-            li = parse_csq(li, self.csq_labels, self.anno_fields)
+            li = parse_csq(li, self.csq_labels, 'CSQ')
 
         d = {k: v for k, v in zip(self.vcf_header_extended, li)}
         return d

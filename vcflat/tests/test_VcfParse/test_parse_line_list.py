@@ -5,7 +5,7 @@ from cyvcf2 import VCF
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
-    i = os.path.join(test_data_dir, "test.snpeff.vcf")
+    i = os.path.join(test_data_dir, "test-hemi.vcf")
     vcffile = VP.VcfParse(i)
     return vcffile
 
@@ -19,8 +19,8 @@ def base_tests():
 
 
 def test_1():
-    assert len(base_tests()) is 14
+    assert len(base_tests()) is 37
 
 def test_2():
-    test = {'#CHROM', 'POS', 'Transcript', 'EFF'}
+    test = {'#CHROM', 'POS', 'Transcript', 'CSQ'}
     assert (test.intersection(set((base_tests().keys()))))
