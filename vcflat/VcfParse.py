@@ -27,18 +27,6 @@ class VcfParse:
 
         return list_of_annotations
 
-
-    def csq_flag(self):
-        """
-        Checks if the meta dict includes an INFO field and if the info has CSQ annotation
-        """
-
-        if self.vcf_meta.meta_dict.get("INFO"):
-            if self.vcf_meta.meta_dict['INFO'].get('CSQ'):
-                return True
-        else:
-            return False
-
     def get_csq_labels(self,anno_flag):
         """extract csq labels from meta info"""
         csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag][2].split(':', 1)[1].split('|')
