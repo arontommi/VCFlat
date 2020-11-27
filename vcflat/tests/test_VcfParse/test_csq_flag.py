@@ -14,4 +14,3 @@ def base_tests():
 def test_1():
     """ test if csq flag ist as expected"""
     assert base_tests().csq_flag() is True
-

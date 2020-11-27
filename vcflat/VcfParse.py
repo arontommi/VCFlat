@@ -18,13 +18,13 @@ class VcfParse:
             self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
 
     def check_for_annotations(self):
+        list_of_annotations = []
         for k, v in self.vcf_meta.meta_dict['INFO'].items():
             for i in v:
                 if '|' in i:
-                    r = k
-                else:
-                    r = None
-        return r
+                    list_of_annotations.append(k)
+
+        return list_of_annotations
 
 
     def csq_flag(self):
@@ -33,14 +33,14 @@ class VcfParse:
         """
 
         if self.vcf_meta.meta_dict.get("INFO"):
-            if self.vcf_meta.meta_dict['INFO'].get(self.anno_field):
+            if self.vcf_meta.meta_dict['INFO'].get(self.anno_field[0]):
                 return True
         else:
             return False
 
     def get_csq_labels(self):
         """extract csq labels from meta info"""
-        csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field][2].split(':', 1)[1].split('|')
+        csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field[0]][2].split(':', 1)[1].split('|')
         return csq_labels
 
     def parse_line_list(self,listfromvcfline):
