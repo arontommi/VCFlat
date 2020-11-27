@@ -10,7 +10,7 @@ class VcfParse:
     def __init__(self, input_vcf):
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf)
-        self.anno_field = self.check_for_annotations()
+        self.anno_fields = self.check_for_annotations()
         self.csq = self.csq_flag()
         self.vcf_header_extended = self.vcf_meta.header
         if self.csq:
@@ -33,14 +33,14 @@ class VcfParse:
         """
 
         if self.vcf_meta.meta_dict.get("INFO"):
-            if self.vcf_meta.meta_dict['INFO'].get(self.anno_field[0]):
+            if self.vcf_meta.meta_dict['INFO'].get(self.anno_fields[0]):
                 return True
         else:
             return False
 
     def get_csq_labels(self):
         """extract csq labels from meta info"""
-        csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_field[0]][2].split(':', 1)[1].split('|')
+        csq_labels = self.vcf_meta.meta_dict['INFO'][self.anno_fields[0]][2].split(':', 1)[1].split('|')
         return csq_labels
 
     def parse_line_list(self,listfromvcfline):
@@ -55,7 +55,7 @@ class VcfParse:
         li = generate_vaf(li)
         li = splitinfo(li)
         if self.csq:
-            li = parse_csq(li, self.csq_labels, self.anno_field)
+            li = parse_csq(li, self.csq_labels, self.anno_fields)
 
         d = {k: v for k, v in zip(self.vcf_header_extended, li)}
         return d
