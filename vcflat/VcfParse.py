@@ -94,7 +94,7 @@ class VcfParse:
         if keyset.issubset(allkeys):
             return keys.split()
         else:
-            raise SystemExit(f' these keys are not found in the vcf file: {"".join([i for i in  keyset.difference(allkeys)])} \n'
+            sys.stderr.write(f' these keys are not found in the vcf file: {"".join([i for i in  keyset.difference(allkeys)])} \n'
                      f' please check your key input')
 
 

@@ -22,5 +22,5 @@ def test_2(capsys):
     vcffile.sanitize_keys(keys)
 
     out, err = capsys.readouterr()
-    print(out, err)
-    assert out == 0
+
+    assert "Wrong_key" in err.split()
