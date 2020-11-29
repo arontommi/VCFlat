@@ -15,7 +15,7 @@ def base_tests():
 
 
 def test_1():
-    assert type(base_tests().csq_labels) is list
+    assert type(base_tests().csq_labels) is dict
 
 
 def test_2():

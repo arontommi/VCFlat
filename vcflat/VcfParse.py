@@ -11,12 +11,16 @@ class VcfParse:
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf)
         self.anno_fields = self.check_for_annotations()
-        self.csq = self.csq_flag()
+
         self.vcf_header_extended = self.vcf_meta.header
-        if "CSQ" in self.anno_fields:
+        self.csq = False
+        if self.anno_fields:
             self.csq = True
-            self.csq_labels = self.get_csq_labels('CSQ')
-            self.vcf_header_extended = self.vcf_meta.header + ['CSQdict']
+            self.vcf_header_extended = self.vcf_meta.header
+            self.csq_labels = {}
+            for i in self.anno_fields:
+                self.csq_labels[i] = self.get_csq_labels(i)
+                self.vcf_header_extended = self.vcf_header_extended + [i+'_dict']
 
     def check_for_annotations(self):
         list_of_annotations = []
@@ -44,7 +48,8 @@ class VcfParse:
         li = generate_vaf(li)
         li = splitinfo(li)
         if self.csq:
-            li = parse_csq(li, self.csq_labels, 'CSQ')
+            for i in self.anno_fields:
+                li = parse_csq(li, self.csq_labels, i)
 
         d = {k: v for k, v in zip(self.vcf_header_extended, li)}
         return d
@@ -188,7 +193,7 @@ def parse_csq(li, csq_labels, anno_field):
     if not flag:
         for infolist in li[7][anno_field].split(','):
             nl = li.copy()
-            z = dict(zip(csq_labels, infolist.split('|')))
+            z = dict(zip(csq_labels[anno_field], infolist.split('|')))
             nl.append(z)
             ret_list = nl
     return ret_list
