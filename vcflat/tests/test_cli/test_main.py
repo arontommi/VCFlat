@@ -5,7 +5,7 @@ pytest_plugins = ["pytester"]
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
-    input = os.path.join(test_data_dir, "test.snpeff.vcf")
+    input = os.path.join(test_data_dir, "test-hemi.vcf")
 
     output = os.path.join(os.path.join(os.path.dirname(__file__), '..', 'test_data'), 'out.csv')
     return input, output
@@ -44,5 +44,5 @@ def test_4():
 
     with open(output, 'r') as f:
         reader = csv.DictReader(f)
-        assert set(returnkeys).issubset(set((reader.fieldnames[0].split('\t'))))
+        assert [i for i in returnkeys if i in set(reader.fieldnames[0].split('\t'))]
     os.remove(output)
