@@ -51,9 +51,11 @@ class VcfParse:
         if self.csq:
             for i in self.anno_fields:
                 li = parse_csq(li, self.csq_labels, i)
-
-        d = {k: v for k, v in zip(self.vcf_header_extended, li)}
-        return d
+        lod = []
+        for i in li:
+            d = {k: v for k, v in zip(self.vcf_header_extended, i)}
+            lod.append(d)
+        return lod
 
 
     def parse(self, sample=None):
@@ -64,9 +66,10 @@ class VcfParse:
         for line in vcf_file:
             split_line = [i.strip('\n') for i in str(line).split('\t')]
             return_li = self.parse_line_list(split_line)
-            merged = flatten_d(return_li)
-            merged.update({"Sample": s})
-            yield merged
+            for d in return_li:
+                merged = flatten_d(d)
+                merged.update({"Sample": s})
+                yield merged
 
     """functions to extract column headers"""
 
@@ -192,11 +195,14 @@ def parse_csq(li, csq_labels, anno_field):
     ret_list = li.copy()
     flag = valdidate_csq(li, anno_field)
     if not flag:
+        ret_list = []
         for infolist in li[7][anno_field].split(','):
             nl = li.copy()
             z = dict(zip(csq_labels[anno_field], infolist.split('|')))
             nl.append(z)
-            ret_list = nl
+            ret_list.append(nl)
+
+
     return ret_list
 
 def flatten_d(d):

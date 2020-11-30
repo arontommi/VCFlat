@@ -15,7 +15,7 @@ def base_tests():
     vcf_file = VCF('{}'.format(file.input_vcf), strict_gt=True)
     firstline = [i for i in vcf_file][0]
     split_line = [i.strip('\n') for i in str(firstline).split('\t')]
-    return file.parse_line_list(split_line)
+    return file.parse_line_list(split_line)[0]
 
 
 def test_1():

@@ -26,13 +26,17 @@ def base_tests():
                         VP.zipformat(VP.nestlists(testline),header_list=vcffile.vcf_meta.header)))
 
     testline = VP.splitinfo(testline)
-    return VP.parse_csq(testline, vcffile.csq_labels, 'CSQ')
-
+    data = VP.parse_csq(testline, vcffile.csq_labels, 'CSQ')
+    return data
 
 def test_1():
     """check if the dict generated has correct nr of elements """
-    assert type(base_tests()[10]) is dict
+    assert type(base_tests()[0][10]) is dict
 
 def test_2():
     """check if the dict generated has correct nr of elements """
-    assert (base_tests()[10]) is not None
+    assert (base_tests()[0][10]) is not None
+
+def test_3():
+    """ test to check the multiparsing aspect"""
+    pass
