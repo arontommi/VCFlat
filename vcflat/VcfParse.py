@@ -32,8 +32,9 @@ class VcfParse:
         return list_of_annotations
 
     def get_csq_labels(self,anno_flag):
-        """extract csq labels from meta info"""
+        """extract csq labels from meta info and cleans leading and trailing whitespace"""
         csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag][2].split(':', 1)[1].split('|')
+        csq_labels = [i.strip() for i in csq_labels]
         return csq_labels
 
     def parse_line_list(self,listfromvcfline):
