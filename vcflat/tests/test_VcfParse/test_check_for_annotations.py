@@ -15,4 +15,4 @@ def base_tests():
 
 
 def test_1():
-    assert base_tests().anno_field == 'EFF'
+    assert  'EFF' in  base_tests().anno_fields

@@ -25,5 +25,5 @@ def test_1():
 def test_2():
     out = base_tests()
     base_tests()
-    assert os.path.getsize(out) is 132
+    assert os.path.getsize(out) == 672
     os.remove(out)

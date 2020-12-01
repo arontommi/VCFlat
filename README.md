@@ -38,7 +38,7 @@ I tend to run one vcf file with the `--slowkeys` flag and then pick relevant col
     -o              :   outputfile
     -s              :   Samplename
     -samplefield    :   any fields after the 8th column an example of input could be "Tumor Normal"
-    -keys           :   key values in quotes sepated by space "CHROM POS.. "
+    --keys           :   key values in quotes sepated by space "CHROM POS.. "
     -slowkeys       :   flag to create a column for each value in the vcf
 ```
 
