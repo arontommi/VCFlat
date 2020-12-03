@@ -1,13 +1,14 @@
 import sys
 from csv import DictWriter
 from cyvcf2 import VCF
-from itertools import tee
+from itertools import product,chain
 
 from vcflat.HeaderExtraction import populatevcfheader
 
 
 class VcfParse:
-    def __init__(self, input_vcf):
+    def __init__(self, input_vcf, annotation):
+        self.annotation = annotation
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf)
         self.anno_fields = self.check_for_annotations()
@@ -49,11 +50,20 @@ class VcfParse:
         li = generate_vaf(li)
         li = splitinfo(li)
         if self.csq:
-            for i in self.anno_fields:
-                li = parse_csq(li, self.csq_labels, i)
+            anno_list = []
+            annokeeps = self.anno_fields
+            if self.annotation:
+                annokeeps = [self.annotation]
+            for i in annokeeps:
+                parsed_annotation = parse_csq(li, self.csq_labels, i)
+                if parsed_annotation is not None:
+                    anno_list.append(parsed_annotation)
+            li = list(product([li],*anno_list))
+
         lod = []
-        for i in li:
-            d = {k: v for k, v in zip(self.vcf_header_extended, i)}
+        for lst in li:
+            res = list(chain.from_iterable(i if isinstance(i, list) else [i] for i in lst))
+            d = {k: v for k, v in zip(self.vcf_header_extended, res)}
             lod.append(d)
         return lod
 
@@ -97,7 +107,7 @@ class VcfParse:
 
 
     def write2csv(self, out, keys, sample=None):
-        pars = self.parse(sample)
+        pars = self.parse(sample=sample)
         keys = dict.fromkeys([i for i in keys]).keys()
         with (open(out, 'w') if out else sys.stdout) as csvfile:
             writer = DictWriter(csvfile, keys, delimiter='\t', extrasaction='ignore')
@@ -187,23 +197,18 @@ def valdidate_csq(li, anno_field):
     Validates that INFO column has the csq dict.
 
     """
-
-    if not li[7].get(anno_field):
+    if li[7].get(anno_field):
         return True
 
 def parse_csq(li, csq_labels, anno_field):
-    ret_list = li.copy()
-    flag = valdidate_csq(li, anno_field)
-    if not flag:
+    if li[7].get(anno_field):
         ret_list = []
         for infolist in li[7][anno_field].split(','):
-            nl = li.copy()
             z = dict(zip(csq_labels[anno_field], infolist.split('|')))
-            nl.append(z)
-            ret_list.append(nl)
+            ret_list.append(z)
+        return ret_list
 
 
-    return ret_list
 
 def flatten_d(d):
     """
