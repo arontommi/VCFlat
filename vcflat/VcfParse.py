@@ -1,7 +1,7 @@
 import sys
 from csv import DictWriter
 from cyvcf2 import VCF
-from itertools import product,chain
+from itertools import product, chain
 
 from vcflat.HeaderExtraction import populatevcfheader
 
@@ -21,7 +21,7 @@ class VcfParse:
             self.csq_labels = {}
             for i in self.anno_fields:
                 self.csq_labels[i] = self.get_csq_labels(i)
-                self.vcf_header_extended = self.vcf_header_extended + [i+'_dict']
+                self.vcf_header_extended = self.vcf_header_extended + [i + '_dict']
 
     def check_for_annotations(self):
         list_of_annotations = []
@@ -32,13 +32,13 @@ class VcfParse:
 
         return list_of_annotations
 
-    def get_csq_labels(self,anno_flag):
+    def get_csq_labels(self, anno_flag):
         """extract csq labels from meta info and cleans leading and trailing whitespace"""
         csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag][2].split(':', 1)[1].split('|')
         csq_labels = [i.strip() for i in csq_labels]
         return csq_labels
 
-    def parse_line_list(self,listfromvcfline):
+    def parse_line_list(self, listfromvcfline):
         """
         goes through the later fields in the vcf and parses them
         :param listfromvcfline:
@@ -58,7 +58,7 @@ class VcfParse:
                 parsed_annotation = parse_csq(li, self.csq_labels, i)
                 if parsed_annotation is not None:
                     anno_list.append(parsed_annotation)
-            li = list(product([li],*anno_list))
+            li = list(product([li], *anno_list))
 
         lod = []
         for lst in li:
@@ -66,7 +66,6 @@ class VcfParse:
             d = {k: v for k, v in zip(self.vcf_header_extended, res)}
             lod.append(d)
         return lod
-
 
     def parse(self, sample=None):
         s = 'Sample'
@@ -102,9 +101,9 @@ class VcfParse:
         if keyset.issubset(allkeys):
             return keys.split()
         else:
-            sys.stderr.write(f' these keys are not found in the vcf file: {"".join([i for i in  keyset.difference(allkeys)])} \n'
-                     f' please check your key input')
-
+            sys.stderr.write(f' these keys are not found in the vcf file:'
+                             '{"".join([i for i in  keyset.difference(allkeys)])} \n '
+                             f' please check your key input')
 
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample=sample)
@@ -126,6 +125,7 @@ def nestlists(ll):
         ll[nr + 9] = [ll[8], i]
     return ll
 
+
 def zipformat(ll, header_list):
     """
     zips together FORMAT labels, Sample name and format values into one dict
@@ -134,6 +134,7 @@ def zipformat(ll, header_list):
         formatlist = [header_list[nr + 9] + '_' + i for i in plist[0].split(':')]
         ll[nr + 9] = dict(zip(formatlist, plist[1].split(':')))
     return ll
+
 
 def split_ref_alt(ll):
     """
@@ -152,6 +153,7 @@ def split_ref_alt(ll):
                 ldicts = {**ldicts, **ndict}
         ll[nr + 9] = {**i, **ldicts}
     return ll
+
 
 def generate_vaf(ll):
     """
@@ -180,6 +182,7 @@ def generate_vaf(ll):
             ll[nr + 9] = {**i, **ndict}
     return ll
 
+
 def splitinfo(li):
     """ Splits the INFO column and generates a dict"""
     defdi = dict()
@@ -192,6 +195,7 @@ def splitinfo(li):
     li[7] = defdi
     return li
 
+
 def valdidate_csq(li, anno_field):
     """
     Validates that INFO column has the csq dict.
@@ -200,6 +204,7 @@ def valdidate_csq(li, anno_field):
     if li[7].get(anno_field):
         return True
 
+
 def parse_csq(li, csq_labels, anno_field):
     if li[7].get(anno_field):
         ret_list = []
@@ -207,7 +212,6 @@ def parse_csq(li, csq_labels, anno_field):
             z = dict(zip(csq_labels[anno_field], infolist.split('|')))
             ret_list.append(z)
         return ret_list
-
 
 
 def flatten_d(d):
