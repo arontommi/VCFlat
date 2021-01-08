@@ -2,17 +2,19 @@ from vcflat.VcfParse import VcfParse
 
 from vcflat.HeaderExtraction import VcfHeader
 
+
 class OutputHandle:
-    def __init__(self, inputfile,outputfile, keys=None, slowkeys=True, sample="Sample",annotation=None,long_anno=None):
-        vcffile = VcfParse(inputfile,annotation=annotation,long_anno=long_anno)
+    def __init__(self, inputfile, outputfile, keys=None, slowkeys=True, sample="Sample", annotation=None,
+                 long_anno=None):
+        vcffile = VcfParse(inputfile, annotation=annotation, long_anno=long_anno)
         if keys:
             keylist = vcffile.sanitize_keys(keys=keys)
         elif slowkeys:
             keylist = vcffile.get_header()
         else:
-            keylist = vcffile.get_header_fsat()
+            keylist = vcffile.get_header_fast()
         if annotation:
-            print(f"Exracting {annotation} from info column ")
+            print(f"Extracting {annotation} from info column ")
         if outputfile:
             print(f" Using these keys as column names : {keylist}")
             print(f" Using {sample} for the name column ")
@@ -24,7 +26,3 @@ class OutputHandle:
 class OutputPPrint:
     def __init__(self, inputfile):
         VcfHeader(inputfile).pprint_meta()
-
-
-
-
