@@ -1,15 +1,16 @@
 from vcflat.VcfParse import VcfParse
 
+from vcflat.HeaderExtraction import VcfHeader
 
 class OutputHandle:
-    def __init__(self, inputfile,outputfile, keys=None, slowkeys=True, sample="Sample",annotation=None):
-        vcffile = VcfParse(inputfile,annotation=annotation)
+    def __init__(self, inputfile,outputfile, keys=None, slowkeys=True, sample="Sample",annotation=None,long_anno=None):
+        vcffile = VcfParse(inputfile,annotation=annotation,long_anno=long_anno)
         if keys:
             keylist = vcffile.sanitize_keys(keys=keys)
         elif slowkeys:
             keylist = vcffile.get_header()
         else:
-            keylist = vcffile.get_header_fast()
+            keylist = vcffile.get_header_fsat()
         if annotation:
             print(f"Exracting {annotation} from info column ")
         if outputfile:
@@ -19,6 +20,10 @@ class OutputHandle:
 
         vcffile.write2csv(outputfile, keylist, sample)
 
+
+class OutputPPrint:
+    def __init__(self, inputfile):
+        VcfHeader(inputfile).pprint_meta()
 
 
 
