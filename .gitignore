@@ -10,3 +10,5 @@ dist/
 vcflat.egg-info/
 build/
 *.cache*
+vcflat/__init__.pyc
+vcflat/cli.pyc
