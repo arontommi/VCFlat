@@ -20,6 +20,12 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint
     help='keys for columns, select columns to extract and use in the output file'
 )
 @click.option(
+    '--slowkeys',
+    help='if you just want to use all keys found in the vcf, else it uses only the ones in the first variant',
+    is_flag=True,
+    flag_value=True
+)
+@click.option(
     '--annotation',"-a",
     help='To avoid to many annotation columns and rows you can specify what annotation to use'
 )
@@ -27,12 +33,7 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint
     '--long_anno',"-la",
     help='default is set at 20 "to handle large annotation events'
 )
-@click.option(
-    '--slowkeys',
-    help='if you just want to use all keys found in the vcf, else it uses only the ones in the first variant',
-    is_flag=True,
-    flag_value=True
-)
+
 @click.option(
     '--pprint_header',
     help='prints the header of the vcf file',
