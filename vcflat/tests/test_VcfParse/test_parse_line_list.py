@@ -6,7 +6,7 @@ from cyvcf2 import VCF
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
     i = os.path.join(test_data_dir, "test-hemi.vcf")
-    vcffile = VP.VcfParse(i)
+    vcffile = VP.VcfParse(i,'CSQ')
     return vcffile
 
 
