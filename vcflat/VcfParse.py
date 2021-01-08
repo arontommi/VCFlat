@@ -5,14 +5,16 @@ from itertools import product, chain
 
 from vcflat.HeaderExtraction import populatevcfheader
 
+import re
 
 class VcfParse:
-    def __init__(self, input_vcf, annotation):
-        self.annotation = annotation
+    def __init__(self, input_vcf, annotation=None, long_anno=None):
         self.input_vcf = input_vcf
         self.vcf_meta = populatevcfheader(self.input_vcf)
         self.anno_fields = self.check_for_annotations()
+        self.long_anno = long_anno if long_anno is not None else 20
 
+        self.annotation = annotation
         self.vcf_header_extended = self.vcf_meta.header
         self.csq = False
         if self.anno_fields:
@@ -38,6 +40,19 @@ class VcfParse:
         csq_labels = [i.strip() for i in csq_labels]
         return csq_labels
 
+    def parse_csq(self, li, csq_labels, anno_field):
+        if li[7].get(anno_field):
+            ret_list = []
+            annotation_length = len(li[7][anno_field].split(',')[0].split('|'))
+            if len(li[7][anno_field].split(',')) >= self.long_anno:
+                z = dict(zip(csq_labels[anno_field], ['To Long Annotation'] * annotation_length))
+                ret_list.append(z)
+            else:
+                for infolist in li[7][anno_field].split(','):
+                    z = dict(zip(csq_labels[anno_field], infolist.split('|')))
+                    ret_list.append(z)
+            return ret_list
+
     def parse_line_list(self, listfromvcfline):
         """
         goes through the later fields in the vcf and parses them
@@ -55,7 +70,7 @@ class VcfParse:
             if self.annotation:
                 annokeeps = [self.annotation]
             for i in annokeeps:
-                parsed_annotation = parse_csq(li, self.csq_labels, i)
+                parsed_annotation = self.parse_csq(li, self.csq_labels, i)
                 if parsed_annotation is not None:
                     anno_list.append(parsed_annotation)
             li = list(product([li], *anno_list))
@@ -66,6 +81,8 @@ class VcfParse:
             d = {k: v for k, v in zip(self.vcf_header_extended, res)}
             lod.append(d)
         return lod
+
+
 
     def parse(self, sample=None):
         s = 'Sample'
@@ -96,14 +113,29 @@ class VcfParse:
         return keys
 
     def sanitize_keys(self, keys):
+        key_list = keys.split()
         allkeys = self.get_header()
-        keyset = set(keys.split())
+        keyset = set(key_list)
+        not_in_allkeys = list(keyset.difference(allkeys))
         if keyset.issubset(allkeys):
-            return keys.split()
+            return key_list
         else:
-            sys.stderr.write(f' these keys are not found in the vcf file:'
-                             '{"".join([i for i in  keyset.difference(allkeys)])} \n '
-                             f' please check your key input')
+            for key in not_in_allkeys:
+                try:
+                    rekey = re.compile(key)
+                    newlist = list(filter(rekey.match, list(allkeys)))
+                    if len(newlist) == 0:
+                        sys.stderr.write("No column matching regex provided")
+                    else:
+                        for foundkey in reversed(newlist):
+                            key_list.insert(key_list.index(key), foundkey)
+                    key_list.pop(key_list.index(key))
+                except re.error:
+                    sys.stderr.write(f' these keys are not found in the vcf file: '
+                                     f'{"".join([i for i in  keyset.difference(allkeys)])} \n' 
+                                     f' please check your key input or Regex pattern could not be compiled')
+            return key_list
+
 
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample=sample)
@@ -205,13 +237,7 @@ def valdidate_csq(li, anno_field):
         return True
 
 
-def parse_csq(li, csq_labels, anno_field):
-    if li[7].get(anno_field):
-        ret_list = []
-        for infolist in li[7][anno_field].split(','):
-            z = dict(zip(csq_labels[anno_field], infolist.split('|')))
-            ret_list.append(z)
-        return ret_list
+
 
 
 def flatten_d(d):
