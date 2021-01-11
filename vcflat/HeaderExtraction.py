@@ -1,7 +1,7 @@
 from collections import defaultdict
 from cyvcf2 import VCF
 import pprint as pp
-
+import sys
 
 class VcfHeader(object):
     """Class around meta information about vcf file as well as functions to view it"""
@@ -209,6 +209,11 @@ def populatevcfheader(input_vcf, samples_in_header=None):
     header = extract_header(input_vcf)
     if samples_in_header:
         samples_in_header = samples_in_header.split()
-        header = header[:9] + samples_in_header
+        if len(samples_in_header) == len(header[9:]):
+            header = header[:9] + samples_in_header
+        else:
+            sys.exit(f" '--samples_in_header' given has {len(samples_in_header)}, "
+                             f"but there are {len(header[9:])} samples columns in the vcf body header")
+
     vcf_header = VcfHeader(input_vcf, header, metadict)
     return vcf_header
