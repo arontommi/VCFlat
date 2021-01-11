@@ -42,7 +42,9 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint
     flag_value=True
 )
 
-def vcflat(inputfile,pprint_header, outputfile=None, sample="Sample",keys=False, slowkeys=True, annotation=None, long_anno=None):
+def vcflat(inputfile,
+           pprint_header, outputfile=None, sample="Sample", keys=False, slowkeys=True,
+           annotation=None, long_anno=None):
     if pprint_header:
         OutputPPrint(inputfile)
     else:
