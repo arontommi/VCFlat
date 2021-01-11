@@ -5,8 +5,8 @@ from vcflat.HeaderExtraction import VcfHeader
 
 class OutputHandle:
     def __init__(self, inputfile, outputfile, keys=None, slowkeys=True, sample="Sample", annotation=None,
-                 long_anno=None):
-        vcffile = VcfParse(inputfile, annotation=annotation, long_anno=long_anno)
+                 long_anno=None, samples_in_header=None):
+        vcffile = VcfParse(inputfile, annotation=annotation, long_anno=long_anno, samples_in_header=samples_in_header)
         if keys:
             keylist = vcffile.sanitize_keys(keys=keys)
         elif slowkeys:

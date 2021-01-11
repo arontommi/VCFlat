@@ -7,9 +7,8 @@ def get_input():
     return i
 
 
-def base_tests():
-    header = HE.populatevcfheader(get_input())
-    print(header.header)
+def base_tests(samples_in_header=None):
+    header = HE.populatevcfheader(get_input(),samples_in_header=samples_in_header)
     return header
 
 
@@ -26,3 +25,7 @@ def test_3():
     checklist = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
     """ checks if correct things are in the header """
     assert all(i in base_tests().header for i in checklist)
+
+def test_4():
+    checklist = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', '1', '2', '3', '4']
+    assert all(i in base_tests(samples_in_header=['1', '2', '3', '4']).header for i in checklist)

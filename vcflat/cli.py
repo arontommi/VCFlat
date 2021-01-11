@@ -34,7 +34,10 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint
     '--long_anno',"-la",
     help='default is set at 20 "to handle large annotation events'
 )
-
+@click.option(
+    "--samples_in_header",
+    help='To rename samples in the vcf body header, example: --samples_in_header "Tumor Normal"'
+)
 @click.option(
     '--pprint_header',
     help='prints the header of the vcf file',
@@ -44,7 +47,7 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint
 
 def vcflat(inputfile,
            pprint_header, outputfile=None, sample="Sample", keys=False, slowkeys=True,
-           annotation=None, long_anno=None):
+           annotation=None, long_anno=None, samples_in_header=None):
     if pprint_header:
         OutputPPrint(inputfile)
     else:
@@ -54,7 +57,8 @@ def vcflat(inputfile,
                      keys=keys,
                      slowkeys=slowkeys,
                      annotation=annotation,
-                     long_anno=long_anno)
+                     long_anno=long_anno,
+                     samples_in_header=samples_in_header)
 
 
 if __name__ == '__main__':

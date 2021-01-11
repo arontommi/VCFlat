@@ -8,9 +8,9 @@ from vcflat.HeaderExtraction import populatevcfheader
 import re
 
 class VcfParse:
-    def __init__(self, input_vcf, annotation=None, long_anno=None):
+    def __init__(self, input_vcf, annotation=None, long_anno=None, samples_in_header=None):
         self.input_vcf = input_vcf
-        self.vcf_meta = populatevcfheader(self.input_vcf)
+        self.vcf_meta = populatevcfheader(self.input_vcf,samples_in_header=samples_in_header)
         self.anno_fields = self.check_for_annotations()
         self.long_anno = long_anno if long_anno is not None else 20
 
@@ -135,7 +135,6 @@ class VcfParse:
                                      f'{"".join([i for i in  keyset.difference(allkeys)])} \n' 
                                      f' please check your key input or Regex pattern could not be compiled')
             return key_list
-
 
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample=sample)

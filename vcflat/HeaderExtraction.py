@@ -15,7 +15,6 @@ class VcfHeader(object):
     def pprint_meta(self, key=False):
         self.meta_dict = process_meta_dict(self.input_vcf)
         if key:
-
             try:
                 print(f'\n'
                       f'Printing out the values from the meta dict for {key}\n'
@@ -197,18 +196,19 @@ def process_meta_dict(inputvcf):
     return meta_dict
 
 
-def populatevcfheader(input_vcf, samplefield=None):
+def populatevcfheader(input_vcf, samples_in_header=None):
     """
     returns a header on the original vcf with "samplefield" being the sample names (fields after the "INFO" samples)
 
 
     :param input_vcf: basic VCF file
-    :param samplefield: samplenames
+    :param samples_in_header: samplenames
     :return: things that should be in the actual header of the vcf
     """
     metadict = process_meta_dict(input_vcf)
     header = extract_header(input_vcf)
-    if samplefield:
-        header = header[:9] + [samplefield]
+    if samples_in_header:
+        samples_in_header = samples_in_header.split()
+        header = header[:9] + samples_in_header
     vcf_header = VcfHeader(input_vcf, header, metadict)
     return vcf_header
