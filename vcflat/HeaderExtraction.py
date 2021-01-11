@@ -6,17 +6,14 @@ import pprint as pp
 class VcfHeader(object):
     """Class around meta information about vcf file as well as functions to view it"""
 
-    input_vcf = ''
-    header = []
-    meta_dict = {}
-    def __init__(self, input_vcf, header, meta_dict):
+    def __init__(self, input_vcf, header=None, meta_dict=None):
 
         self.input_vcf = input_vcf
-        self.header = header
-        self.meta_dict = meta_dict
+        self.header = header if header is not None else []
+        self.meta_dict = meta_dict if meta_dict is not None else {}
 
     def pprint_meta(self, key=False):
-
+        self.meta_dict = process_meta_dict(self.input_vcf)
         if key:
 
             try:
@@ -30,7 +27,7 @@ class VcfHeader(object):
                       'but here is the output anyway ')
                 print(self.meta_dict[key])
         else:
-            pp.pprint(self.meta_dict, depth=1)
+            pp.pprint(self.meta_dict, depth=3)
 
     def determine_keys(self):
         pass

@@ -23,23 +23,33 @@ basic run would look something like this:
 `python3 -m vcflat -i input_file -o output_file
 `
 
+A more useful example would be:
+
+`python3 -m vcflat -i inputfile -o outputfile --Sample my_sample_name --keys "Sample #CHROM POS REF ALT Gene_name .*_DP"`
+
+This would create a nice simplified tab delimted file with a samplename (if you would want to combine multiple files lated down the road) 
+
+
 vcflat uses the column keys from the first variant to generate the columns, if you want to get all possible columns
 (since vcffiles can have a variable number of them) add the flag `--slowkeys` it is called slowkeys because you need to
 iterate through the whole vcf file before you can create the columns (so twice as slow)
 
 you can also use your own column keys and your own ordering of those keys by using:
-`--keys '#CROM POS..` with the column keys being separated by space
+`--keys '#CROM POS..` with the column keys being separated by space. you can also specify regexes (at least simple ones (for example '.*_PR_*')) 
+to get all fields matchin a description (this is not tested extensivly yet so beware!)
 
 I tend to run one vcf file with the `--slowkeys` flag and then pick relevant column names from there
 
 ### list of parameters:
 ```
-    -i              :   inputfile
-    -o              :   outputfile
-    -s              :   Samplename
-    -samplefield    :   any fields after the 8th column an example of input could be "Tumor Normal"
-    --keys           :   key values in quotes sepated by space "CHROM POS.. "
-    -slowkeys       :   flag to create a column for each value in the vcf
+    -i              :   (--inputfile) A VCF file. it can be gzipped as well
+    -o              :   (--outputfile) Output file 
+    -s              :   (--sample) Samplename
+    --keys          :   key values in quotes sepated by space "CHROM POS.. "
+    --slowkeys      :   In standard mode, VCFlat uses the first line to determine columns to use. If there are column keys that are not used in the first variant they are not included. This option creates column for all keys in all values, downside is that VCFlat has to iterate over two times over the data
+    --annotation    :   To specify which annotation to use if there are multiple annotations on the vcf. since VCFlat creates a seperate line for each annotation, if there are multiple annotation it can soon balloon the file.
+    --long_anno     :   To specify max number of annotations (default set at 20). very hand to reduce annotations for structural variant files
+    
 ```
 
 VCFlat uses [Cyvcf2](https://github.com/brentp/cyvcf2) under the hood. Cyvcf2 *is a cython wrapper around [htslib](https://github.com/samtools/htslib)
