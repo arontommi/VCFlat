@@ -172,7 +172,7 @@ def split_ref_alt(ll):
     """
     splits FORMAT elements that has two values into REF and ALT
     """
-    ra = ['_REF', '_ALT']
+    ra = ['_1', '_2']
     for nr, i in enumerate(ll[9:]):
         ldicts = dict()
         for k, v in i.items():
