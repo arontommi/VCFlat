@@ -2,7 +2,8 @@ import click
 
 from vcflat.OutputHandle import OutputHandle, OutputPPrint
 
-@click.command(context_settings={'help_option_names':['-h','--help']})
+
+@click.command(context_settings={'help_option_names':['-h','--help']},no_args_is_help=True)
 @click.option(
     '--inputfile', '-i',
     help=' VCF file ',
