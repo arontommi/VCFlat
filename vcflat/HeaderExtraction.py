@@ -154,7 +154,7 @@ def list2dict(basedict, field):
         l4d = []
         for i in info_list:
             l4d.append(i.split("=", 1)[1])
-        basedict[field][l4d[0]] = l4d[1:]
+        basedict[field][l4d[0]] = {"data": l4d[1:]}
     return basedict
 
 
@@ -217,3 +217,14 @@ def populatevcfheader(input_vcf, samples_in_header=None):
 
     vcf_header = VcfHeader(input_vcf, header, metadict)
     return vcf_header
+
+def detect_double_type(input_vcf):
+    metadict = process_meta_dict(input_vcf)
+    for k, v in metadict["FORMAT"].items():
+        double_type = "NAN"
+        if any('ref' and 'alt' in i for i in v["data"]):
+            double_type = "REF_ALT"
+        if any('tier' in i for i in v['data']):
+            double_type = "TIERS"
+        metadict['FORMAT'][k]['double_type'] = double_type
+    return metadict

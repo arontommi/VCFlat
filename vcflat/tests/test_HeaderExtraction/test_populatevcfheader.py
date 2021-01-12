@@ -28,4 +28,4 @@ def test_3():
 
 def test_4():
     checklist = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', '1', '2', '3', '4']
-    assert all(i in base_tests(samples_in_header=['1', '2', '3', '4']).header for i in checklist)
+    assert all(i in base_tests(samples_in_header='1 2 3 4').header for i in checklist)

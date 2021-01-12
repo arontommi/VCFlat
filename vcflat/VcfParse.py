@@ -28,7 +28,7 @@ class VcfParse:
     def check_for_annotations(self):
         list_of_annotations = []
         for k, v in self.vcf_meta.meta_dict['INFO'].items():
-            for i in v:
+            for i in v['data']:
                 if '|' in i:
                     list_of_annotations.append(k)
 
@@ -36,7 +36,7 @@ class VcfParse:
 
     def get_csq_labels(self, anno_flag):
         """extract csq labels from meta info and cleans leading and trailing whitespace"""
-        csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag][2].split(':', 1)[1].split('|')
+        csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag]['data'][2].split(':', 1)[1].split('|')
         csq_labels = [i.strip() for i in csq_labels]
         return csq_labels
 

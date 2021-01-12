@@ -28,4 +28,4 @@ def test_2():
 
 def test_3():
     """ checks that output is list """
-    assert len(base_tests()['INFO']['AC']) is 3
+    assert len(base_tests()['INFO']['AC']['data']) is 3
