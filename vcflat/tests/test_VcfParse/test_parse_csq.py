@@ -30,7 +30,7 @@ def base_tests(long_anno=None):
     vcf, testline = get_input()
     vcffile = VP.VcfParse(vcf,long_anno=long_anno)
     testline = VP.generate_vaf(
-                    VP.split_ref_alt(
+                    vcffile.split_ref_alt(
                         VP.zipformat(VP.nestlists(testline), header_list=vcffile.vcf_meta.header)))
 
     testline = VP.splitinfo(testline)

@@ -1,5 +1,7 @@
 import os
 import vcflat.HeaderExtraction as HE
+from collections import defaultdict
+
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
@@ -8,7 +10,8 @@ def get_input():
 
 
 def base_tests():
-    dict_with_double_type_specified = HE.detect_double_type(get_input())
+    metadict = HE.process_meta_dict(get_input())
+    dict_with_double_type_specified = HE.detect_double_type(metadict)
     return dict_with_double_type_specified
 
 def test_1():
