@@ -26,7 +26,7 @@ class VcfHeader(object):
                       'but here is the output anyway ')
                 print(self.meta_dict[key])
         else:
-            pp.pprint(self.meta_dict, depth=3)
+            pp.pprint(self.meta_dict, depth=4)
 
     def determine_keys(self):
         pass
@@ -173,6 +173,17 @@ def generate_complete_dict(basedict, field, how_many):
     return meta_dict
 
 
+def detect_double_type(metadict):
+    for k, v in metadict["FORMAT"].items():
+        double_type = "NAN"
+        if any('ref' and 'alt' in i for i in v["data"]):
+            double_type = "REF_ALT"
+        if any('tier' in i for i in v['data']):
+            double_type = "TIERS"
+        metadict['FORMAT'][k]['double_type'] = double_type
+    return metadict
+
+
 def process_meta_dict(inputvcf):
     """
     main parsing of the vcf header (everything that starts with ## into a nice dict of all meta information
@@ -206,6 +217,7 @@ def populatevcfheader(input_vcf, samples_in_header=None):
     :return: things that should be in the actual header of the vcf
     """
     metadict = process_meta_dict(input_vcf)
+    metadict = detect_double_type(metadict)
     header = extract_header(input_vcf)
     if samples_in_header:
         samples_in_header = samples_in_header.split()
@@ -218,13 +230,5 @@ def populatevcfheader(input_vcf, samples_in_header=None):
     vcf_header = VcfHeader(input_vcf, header, metadict)
     return vcf_header
 
-def detect_double_type(input_vcf):
-    metadict = process_meta_dict(input_vcf)
-    for k, v in metadict["FORMAT"].items():
-        double_type = "NAN"
-        if any('ref' and 'alt' in i for i in v["data"]):
-            double_type = "REF_ALT"
-        if any('tier' in i for i in v['data']):
-            double_type = "TIERS"
-        metadict['FORMAT'][k]['double_type'] = double_type
-    return metadict
+
+
