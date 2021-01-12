@@ -53,6 +53,26 @@ class VcfParse:
                     ret_list.append(z)
             return ret_list
 
+    def split_ref_alt(self, ll):
+        """
+        splits FORMAT elements that has two values into REF and ALT
+        """
+        ra = ['_1', '_2']
+        for nr, i in enumerate(ll[9:]):
+            ldicts = dict()
+            for k, v in i.items():
+                if len(v.split(',')) == 2:
+                    if self.vcf_meta.meta_dict['FORMAT'][k.split("_")[1]]['double_type'] == 'REF_ALT':
+                        ra = ['_REF','_ALT']
+                    vsp = [int(i) for i in v.split(',')]
+                    k_ra = [k + r for r in ra]
+                    ndict = dict()
+                    for nk, nv in zip(k_ra, vsp):
+                        ndict[nk] = nv
+                    ldicts = {**ldicts, **ndict}
+            ll[nr + 9] = {**i, **ldicts}
+        return ll
+
     def parse_line_list(self, listfromvcfline):
         """
         goes through the later fields in the vcf and parses them
@@ -61,7 +81,7 @@ class VcfParse:
         """
         li = nestlists(listfromvcfline)
         li = zipformat(li, header_list=self.vcf_meta.header)
-        li = split_ref_alt(li)
+        li = self.split_ref_alt(li)
         li = generate_vaf(li)
         li = splitinfo(li)
         if self.csq:
@@ -167,23 +187,7 @@ def zipformat(ll, header_list):
     return ll
 
 
-def split_ref_alt(ll):
-    """
-    splits FORMAT elements that has two values into REF and ALT
-    """
-    ra = ['_1', '_2']
-    for nr, i in enumerate(ll[9:]):
-        ldicts = dict()
-        for k, v in i.items():
-            if len(v.split(',')) == 2:
-                vsp = [int(i) for i in v.split(',')]
-                k_ra = [k + r for r in ra]
-                ndict = dict()
-                for nk, nv in zip(k_ra, vsp):
-                    ndict[nk] = nv
-                ldicts = {**ldicts, **ndict}
-        ll[nr + 9] = {**i, **ldicts}
-    return ll
+
 
 
 def generate_vaf(ll):
