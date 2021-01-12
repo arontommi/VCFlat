@@ -31,6 +31,10 @@ class VcfHeader(object):
     def determine_keys(self):
         pass
 
+    def pprint_vcf_body_header(self):
+        vcf_body_header = extract_header(self.input_vcf)
+        pp.pprint(vcf_body_header)
+
 
 def get_raw_header(input_vcf):
     """

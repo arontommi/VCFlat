@@ -26,3 +26,8 @@ class OutputHandle:
 class OutputPPrint:
     def __init__(self, inputfile):
         VcfHeader(inputfile).pprint_meta()
+
+
+class OutputPPrintBodyHeader:
+    def __init__(self, inputfile):
+        VcfHeader(inputfile).pprint_vcf_body_header()

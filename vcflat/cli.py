@@ -1,6 +1,6 @@
 import click
 
-from vcflat.OutputHandle import OutputHandle, OutputPPrint
+from vcflat.OutputHandle import OutputHandle, OutputPPrint, OutputPPrintBodyHeader
 
 
 @click.command(context_settings={'help_option_names':['-h','--help']},no_args_is_help=True)
@@ -44,12 +44,19 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint
     is_flag=True,
     flag_value=True
 )
-
-def vcflat(inputfile,
-           pprint_header, outputfile=None, sample="Sample", keys=False, slowkeys=True,
+@click.option(
+    '--pprint_body_header',
+    help='prints the header of the vcf body',
+    is_flag=True,
+    flag_value=True
+)
+def vcflat(inputfile, pprint_header, pprint_body_header,
+           outputfile=None, sample="Sample", keys=False, slowkeys=True,
            annotation=None, long_anno=None, samples_in_header=None):
     if pprint_header:
         OutputPPrint(inputfile)
+    if pprint_body_header:
+        OutputPPrintBodyHeader(inputfile)
     else:
         OutputHandle(inputfile=inputfile,
                      outputfile=outputfile,
