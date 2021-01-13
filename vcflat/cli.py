@@ -1,4 +1,5 @@
 import click
+import sys
 
 from vcflat.OutputHandle import OutputHandle, OutputPPrint, OutputPPrintBodyHeader
 
@@ -57,7 +58,7 @@ def vcflat(inputfile, pprint_header, pprint_body_header,
         OutputPPrint(inputfile)
     if pprint_body_header:
         OutputPPrintBodyHeader(inputfile)
-    else:
+    if not pprint_body_header and not pprint_header:
         OutputHandle(inputfile=inputfile,
                      outputfile=outputfile,
                      sample=sample,

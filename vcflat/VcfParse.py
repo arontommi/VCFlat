@@ -62,8 +62,11 @@ class VcfParse:
             ldicts = dict()
             for k, v in i.items():
                 if len(v.split(',')) == 2:
-                    if self.vcf_meta.meta_dict['FORMAT'][k.split("_")[1]]['double_type'] == 'REF_ALT':
-                        ra = ['_REF','_ALT']
+                    try :
+                        if self.vcf_meta.meta_dict['FORMAT'][k.split("_")[1]]['double_type'] == 'REF_ALT':
+                            ra = ['_REF','_ALT']
+                    except:
+                        pass
                     vsp = [int(i) for i in v.split(',')]
                     k_ra = [k + r for r in ra]
                     ndict = dict()
