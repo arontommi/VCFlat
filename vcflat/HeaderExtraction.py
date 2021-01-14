@@ -3,7 +3,8 @@ from cyvcf2 import VCF
 import pprint as pp
 import sys
 
-class VcfHeader(object):
+
+class VcfHeader:
     """Class around meta information about vcf file as well as functions to view it"""
 
     def __init__(self, input_vcf, header=None, meta_dict=None):
@@ -16,20 +17,21 @@ class VcfHeader(object):
         self.meta_dict = process_meta_dict(self.input_vcf)
         if key:
             try:
-                print(f'\n'
-                      f'Printing out the values from the meta dict for {key}\n'
-                      f'Starts with a key and then gives a info for the output\n')
+                print(
+                    f"\n"
+                    f"Printing out the values from the meta dict for {key}\n"
+                    f"Starts with a key and then gives a info for the output\n"
+                )
                 for k, v in self.meta_dict[key].items():
                     print(f"Key = {k} : Values = {v}")
             except AttributeError:
-                print(f'Seems like the key value pairs did not play nicely for {key} \n'
-                      'but here is the output anyway ')
+                print(
+                    f"Seems like the key value pairs did not play nicely for {key} \n"
+                    "but here is the output anyway "
+                )
                 print(self.meta_dict[key])
         else:
             pp.pprint(self.meta_dict, depth=4)
-
-    def determine_keys(self):
-        pass
 
     def pprint_vcf_body_header(self):
         vcf_body_header = extract_header(self.input_vcf)
@@ -41,8 +43,10 @@ def get_raw_header(input_vcf):
     Gets input_vcf as input
     returns the raw header of the vcf file
     """
-    vcf_file = VCF('{}'.format(input_vcf), strict_gt=True)
-    raw_vcf_header_list = [header_line for header_line in vcf_file.raw_header.split("\n") if header_line]
+    vcf_file = VCF("{}".format(input_vcf), strict_gt=True)
+    raw_vcf_header_list = [
+        header_line for header_line in vcf_file.raw_header.split("\n") if header_line
+    ]
 
     return raw_vcf_header_list
 
@@ -52,11 +56,11 @@ def extract_header(input_vcf):
     looks for the real header file of the vcf file and creates a vcf_header list
     :returns header_list
     """
-    vcf_header = ''
+    vcf_header = ""
     raw_header = get_raw_header(input_vcf)
     for i in raw_header:
-        if i.startswith('#CHROM'):
-            vcf_header = [ii for ii in i.split('\t')]
+        if i.startswith("#CHROM"):
+            vcf_header = [ii for ii in i.split("\t")]
     return vcf_header
 
 
@@ -66,7 +70,7 @@ def pop_header(raw_header):
     :return:
     """
     for i in raw_header:
-        if i.startswith('#CHROM'):
+        if i.startswith("#CHROM"):
             raw_header.pop()
     return raw_header
 
@@ -78,13 +82,13 @@ def clean_meta(unclean_list):
     """
     clean_list = []
     for i in unclean_list:
-        if '=<' in i:
-            i = i.rstrip('>')
-            i = i.replace('##', '')
-            ii = i.split('=<', 1)
+        if "=<" in i:
+            i = i.rstrip(">")
+            i = i.replace("##", "")
+            ii = i.split("=<", 1)
         else:
-            i = i.replace('##', '')
-            ii = i.split('=', 1)
+            i = i.replace("##", "")
+            ii = i.split("=", 1)
         clean_list.append(ii)
     return clean_list
 
@@ -104,7 +108,7 @@ def dictify(clean_list):
             else:
                 base_dict[key].append(value)
         except IndexError:
-            print('index error')
+            print("index error")
 
     return base_dict
 
@@ -115,7 +119,7 @@ def validate_meta(base_dict):
     :return:
     """
     metalist = [i for i in base_dict]
-    includelist = ['INFO', 'FORMAT', 'FILTER']
+    includelist = ["INFO", "FORMAT", "FILTER"]
     inmeta = {}
     for i in includelist:
         if i in metalist:
@@ -137,7 +141,7 @@ def custom_dict_chunking(basedict, field, how_many):
 
     new_dict_list = []
     for v in basedict[field]:
-        new_dict_list.append(v.split(',', how_many))
+        new_dict_list.append(v.split(",", how_many))
     basedict[field] = new_dict_list
 
     return basedict
@@ -180,11 +184,11 @@ def generate_complete_dict(basedict, field, how_many):
 def detect_double_type(metadict):
     for k, v in metadict["FORMAT"].items():
         double_type = "NAN"
-        if any('ref' and 'alt' in i for i in v["data"]):
+        if any("ref" and "alt" in i for i in v["data"]):
             double_type = "REF_ALT"
-        if any('tier' in i for i in v['data']):
+        if any("tier" in i for i in v["data"]):
             double_type = "TIERS"
-        metadict['FORMAT'][k]['double_type'] = double_type
+        metadict["FORMAT"][k]["double_type"] = double_type
     return metadict
 
 
@@ -202,12 +206,12 @@ def process_meta_dict(inputvcf):
     chunk_dict = validate_meta(base_dict)
 
     meta_dict = {}
-    if chunk_dict['INFO']:
+    if chunk_dict["INFO"]:
         meta_dict = generate_complete_dict(base_dict, "INFO", 3)
-    if chunk_dict['FORMAT']:
-        meta_dict = generate_complete_dict(base_dict, 'FORMAT', 3)
-    if chunk_dict['FILTER']:
-        meta_dict = generate_complete_dict(meta_dict, 'FILTER', 1)
+    if chunk_dict["FORMAT"]:
+        meta_dict = generate_complete_dict(base_dict, "FORMAT", 3)
+    if chunk_dict["FILTER"]:
+        meta_dict = generate_complete_dict(meta_dict, "FILTER", 1)
     return meta_dict
 
 
@@ -228,11 +232,10 @@ def populatevcfheader(input_vcf, samples_in_header=None):
         if len(samples_in_header) == len(header[9:]):
             header = header[:9] + samples_in_header
         else:
-            sys.exit(f" '--samples_in_header' given has {len(samples_in_header)}, "
-                             f"but there are {len(header[9:])} samples columns in the vcf body header")
+            sys.exit(
+                f" '--samples_in_header' given has {len(samples_in_header)}, "
+                f"but there are {len(header[9:])} samples columns in the vcf body header"
+            )
 
     vcf_header = VcfHeader(input_vcf, header, metadict)
     return vcf_header
-
-
-

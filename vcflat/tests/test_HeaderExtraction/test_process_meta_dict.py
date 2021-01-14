@@ -4,7 +4,7 @@ from collections import defaultdict
 
 
 def get_input():
-    test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
+    test_data_dir = os.path.join(os.path.dirname(__file__), "..", "test_data")
     i = os.path.join(test_data_dir, "test.snpeff.vcf")
     return i
 
@@ -24,7 +24,8 @@ def test_2():
 
     assert base_tests() is not None
 
+
 def test_3():
     """ check for base things"""
-    print(base_tests()['FORMAT'])
-    assert len(base_tests()['FORMAT']) is 5
+    print(base_tests()["FORMAT"])
+    assert len(base_tests()["FORMAT"]) is 5
