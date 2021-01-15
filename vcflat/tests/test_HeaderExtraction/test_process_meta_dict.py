@@ -3,12 +3,14 @@ from collections import defaultdict
 
 from vcflat.HeaderExtraction import VcfHeader
 
+
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), "..", "test_data")
     i = os.path.join(test_data_dir, "test.snpeff.vcf")
     vcfh = VcfHeader(i)
     output = vcfh.process_meta_dict()
     return output
+
 
 def test_1():
     """ checks that output is a default dict """

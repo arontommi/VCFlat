@@ -1,4 +1,3 @@
-
 import os
 from vcflat.HeaderExtraction import VcfHeader, generate_complete_dict
 from collections import defaultdict
@@ -13,14 +12,14 @@ def get_input():
 
 def test_1():
     """ checks that output is list """
-    assert type(get_input().meta_dict['INFO']) is dict
+    assert type(get_input().meta_dict["INFO"]) is dict
 
 
 def test_2():
     """ checks that output is list """
-    assert type(get_input().meta_dict['INFO']) is not None
+    assert type(get_input().meta_dict["INFO"]) is not None
 
 
 def test_3():
     """ checks that output is list """
-    assert len(get_input().meta_dict['INFO']["AC"]["data"]) is 3
+    assert len(get_input().meta_dict["INFO"]["AC"]["data"]) is 3

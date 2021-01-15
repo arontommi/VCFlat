@@ -1,6 +1,6 @@
 from vcflat.VcfParse import VcfParse
 
-from vcflat.HeaderExtraction import VcfHeader
+from vcflat import PPrintFunctions
 
 
 class OutputHandle:
@@ -39,9 +39,9 @@ class OutputHandle:
 
 class OutputPPrint:
     def __init__(self, inputfile):
-        VcfHeader(inputfile).pprint_meta()
+        PPrintFunctions.pprint_meta(inputfile)
 
 
 class OutputPPrintBodyHeader:
     def __init__(self, inputfile):
-        VcfHeader(inputfile).pprint_vcf_body_header()
+        PPrintFunctions.pprint_vcf_body_header(inputfile)

@@ -1,7 +1,7 @@
-
 import os
 
 from vcflat.HeaderExtraction import VcfHeader
+
 
 def get_input(samples_in_header=None):
     test_data_dir = os.path.join(os.path.dirname(__file__), "..", "test_data")
@@ -9,6 +9,7 @@ def get_input(samples_in_header=None):
     vcfh = VcfHeader(i, samples_in_header=samples_in_header)
 
     return vcfh
+
 
 def test_1():
     """ checks that output is list """

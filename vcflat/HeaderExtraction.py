@@ -146,7 +146,7 @@ def validate_meta(base_dict):
             if i in metalist:
                 inmeta[i] = True
         except:
-            #TODO create a breaking error here (not forget to fix test)
+            # TODO create a breaking error here (not forget to fix test)
             inmeta[i] = False
     return inmeta
 

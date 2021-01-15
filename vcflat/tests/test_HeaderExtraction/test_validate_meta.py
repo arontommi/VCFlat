@@ -1,5 +1,5 @@
 import os
-from vcflat.HeaderExtraction import VcfHeader, clean_meta,dictify, validate_meta
+from vcflat.HeaderExtraction import VcfHeader, clean_meta, dictify, validate_meta
 
 
 def get_input(file):
@@ -13,5 +13,3 @@ def get_input(file):
 def test_1():
     """ validate that true is returned on a valid vcf """
     assert all(get_input("test.snpeff.vcf")) is True
-
-

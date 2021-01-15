@@ -1,4 +1,3 @@
-
 import os
 from vcflat.HeaderExtraction import VcfHeader
 
@@ -8,8 +7,6 @@ def get_input():
     i = os.path.join(test_data_dir, "test.snpeff.vcf")
     vcfh = VcfHeader(i)
     return vcfh
-
-
 
 
 def test_1():

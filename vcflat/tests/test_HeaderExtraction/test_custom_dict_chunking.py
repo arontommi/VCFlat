@@ -2,8 +2,7 @@ import os
 
 from vcflat.HeaderExtraction import VcfHeader, dictify, clean_meta, custom_dict_chunking
 
-#TODO add more tests that make more sense
-
+# TODO add more tests that make more sense
 
 
 def get_input():
@@ -19,6 +18,7 @@ def base_test(nr):
     dictified = dictify(clean)
     out = custom_dict_chunking(dictified, "FILTER", nr)
     return out
+
 
 def test_1():
     """ test if string is split the correct way """

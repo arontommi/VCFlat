@@ -13,9 +13,7 @@ class VcfParse:
         self, input_vcf, annotation=None, long_anno=None, samples_in_header=None
     ):
         self.input_vcf = input_vcf
-        self.vcf_meta = VcfHeader(
-            self.input_vcf, samples_in_header=samples_in_header
-        )
+        self.vcf_meta = VcfHeader(self.input_vcf, samples_in_header=samples_in_header)
         self.anno_fields = self.check_for_annotations()
         self.long_anno = long_anno if long_anno is not None else 20
 
