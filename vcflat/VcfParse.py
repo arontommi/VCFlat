@@ -3,7 +3,7 @@ from csv import DictWriter
 from cyvcf2 import VCF
 from itertools import product, chain
 
-from vcflat.HeaderExtraction import populatevcfheader
+from vcflat.HeaderExtraction import VcfHeader
 
 import re
 
@@ -13,7 +13,7 @@ class VcfParse:
         self, input_vcf, annotation=None, long_anno=None, samples_in_header=None
     ):
         self.input_vcf = input_vcf
-        self.vcf_meta = populatevcfheader(
+        self.vcf_meta = VcfHeader(
             self.input_vcf, samples_in_header=samples_in_header
         )
         self.anno_fields = self.check_for_annotations()
