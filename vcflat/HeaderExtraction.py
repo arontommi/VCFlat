@@ -7,12 +7,11 @@ import sys
 class VcfHeader:
     """Class around meta information about vcf file as well as functions to view it"""
 
-    def __init__(self, input_vcf, header=None, meta_dict=None):
+    def __init__(self, input_vcf, samples_in_header=None):
 
         self.input_vcf = input_vcf
-        self.header = header if header is not None else []
-        self.meta_dict = meta_dict if meta_dict is not None else {}
-        self.vcf_header = self.populatevcfheader(samples_in_header=None)
+        self.header = self.populatevcfheader(samples_in_header=samples_in_header)
+        self.meta_dict = self.process_meta_dict()
 
     def get_raw_header(self):
         """
@@ -59,19 +58,19 @@ class VcfHeader:
             meta_dict = generate_complete_dict(base_dict, "FORMAT", 3)
         if chunk_dict["FILTER"]:
             meta_dict = generate_complete_dict(meta_dict, "FILTER", 1)
+
+        meta_dict = detect_double_type(meta_dict)
         return meta_dict
 
     def populatevcfheader(self, samples_in_header=None):
         """
-        returns a header on the original vcf with "samplefield" being the sample names (fields after the "INFO" samples)
+        returns a header on the original vcf with "samples_in_header" being the sample names (fields after the "INFO" samples)
 
 
         :param input_vcf: basic VCF file
         :param samples_in_header: samplenames
         :return: things that should be in the actual header of the vcf
         """
-        metadict = self.process_meta_dict()
-        metadict = detect_double_type(metadict)
         header = self.extract_header()
         if samples_in_header:
             samples_in_header = samples_in_header.split()
@@ -82,9 +81,7 @@ class VcfHeader:
                     f" '--samples_in_header' given has {len(samples_in_header)}, "
                     f"but there are {len(header[9:])} samples columns in the vcf body header"
                 )
-
-        vcf_header = VcfHeader(self.input_vcf, header, metadict)
-        return vcf_header
+        return header
 
 
 def pop_header(raw_header):
@@ -145,9 +142,11 @@ def validate_meta(base_dict):
     includelist = ["INFO", "FORMAT", "FILTER"]
     inmeta = {}
     for i in includelist:
-        if i in metalist:
-            inmeta[i] = True
-        else:
+        try:
+            if i in metalist:
+                inmeta[i] = True
+        except:
+            #TODO create a breaking error here (not forget to fix test)
             inmeta[i] = False
     return inmeta
 
