@@ -12,56 +12,79 @@ class VcfHeader:
         self.input_vcf = input_vcf
         self.header = header if header is not None else []
         self.meta_dict = meta_dict if meta_dict is not None else {}
+        self.vcf_header = self.populatevcfheader(samples_in_header=None)
 
-    def pprint_meta(self, key=False):
-        self.meta_dict = process_meta_dict(self.input_vcf)
-        if key:
-            try:
-                print(
-                    f"\n"
-                    f"Printing out the values from the meta dict for {key}\n"
-                    f"Starts with a key and then gives a info for the output\n"
+    def get_raw_header(self):
+        """
+        Gets input_vcf as input
+        returns the raw header of the vcf file
+        """
+        vcf_file = VCF("{}".format(self.input_vcf), strict_gt=True)
+        raw_vcf_header_list = [
+            header_line
+            for header_line in vcf_file.raw_header.split("\n")
+            if header_line
+        ]
+        return raw_vcf_header_list
+
+    def extract_header(self):
+        """
+        looks for the real header file of the vcf file and creates a vcf_header list
+        :returns header_list
+        """
+        vcf_header = ""
+        raw_header = self.get_raw_header()
+        for i in raw_header:
+            if i.startswith("#CHROM"):
+                vcf_header = [ii for ii in i.split("\t")]
+        return vcf_header
+
+    def process_meta_dict(self):
+        """
+        main parsing of the vcf header (everything that starts with ## into a nice dict of all meta information
+        :param inputvcf: basic VCF file
+        :return: a nice dict with all header elements and their subelements structured
+        """
+        raw_header = self.get_raw_header()
+        raw_header_popped = pop_header(raw_header)
+        cleaned_meta = clean_meta(raw_header_popped)
+        base_dict = dictify(cleaned_meta)
+
+        chunk_dict = validate_meta(base_dict)
+
+        meta_dict = {}
+        if chunk_dict["INFO"]:
+            meta_dict = generate_complete_dict(base_dict, "INFO", 3)
+        if chunk_dict["FORMAT"]:
+            meta_dict = generate_complete_dict(base_dict, "FORMAT", 3)
+        if chunk_dict["FILTER"]:
+            meta_dict = generate_complete_dict(meta_dict, "FILTER", 1)
+        return meta_dict
+
+    def populatevcfheader(self, samples_in_header=None):
+        """
+        returns a header on the original vcf with "samplefield" being the sample names (fields after the "INFO" samples)
+
+
+        :param input_vcf: basic VCF file
+        :param samples_in_header: samplenames
+        :return: things that should be in the actual header of the vcf
+        """
+        metadict = self.process_meta_dict()
+        metadict = detect_double_type(metadict)
+        header = self.extract_header()
+        if samples_in_header:
+            samples_in_header = samples_in_header.split()
+            if len(samples_in_header) == len(header[9:]):
+                header = header[:9] + samples_in_header
+            else:
+                sys.exit(
+                    f" '--samples_in_header' given has {len(samples_in_header)}, "
+                    f"but there are {len(header[9:])} samples columns in the vcf body header"
                 )
-                for k, v in self.meta_dict[key].items():
-                    print(f"Key = {k} : Values = {v}")
-            except AttributeError:
-                print(
-                    f"Seems like the key value pairs did not play nicely for {key} \n"
-                    "but here is the output anyway "
-                )
-                print(self.meta_dict[key])
-        else:
-            pp.pprint(self.meta_dict, depth=4)
 
-    def pprint_vcf_body_header(self):
-        vcf_body_header = extract_header(self.input_vcf)
-        pp.pprint(vcf_body_header)
-
-
-def get_raw_header(input_vcf):
-    """
-    Gets input_vcf as input
-    returns the raw header of the vcf file
-    """
-    vcf_file = VCF("{}".format(input_vcf), strict_gt=True)
-    raw_vcf_header_list = [
-        header_line for header_line in vcf_file.raw_header.split("\n") if header_line
-    ]
-
-    return raw_vcf_header_list
-
-
-def extract_header(input_vcf):
-    """
-    looks for the real header file of the vcf file and creates a vcf_header list
-    :returns header_list
-    """
-    vcf_header = ""
-    raw_header = get_raw_header(input_vcf)
-    for i in raw_header:
-        if i.startswith("#CHROM"):
-            vcf_header = [ii for ii in i.split("\t")]
-    return vcf_header
+        vcf_header = VcfHeader(self.input_vcf, header, metadict)
+        return vcf_header
 
 
 def pop_header(raw_header):
@@ -190,52 +213,3 @@ def detect_double_type(metadict):
             double_type = "TIERS"
         metadict["FORMAT"][k]["double_type"] = double_type
     return metadict
-
-
-def process_meta_dict(inputvcf):
-    """
-    main parsing of the vcf header (everything that starts with ## into a nice dict of all meta information
-    :param inputvcf: basic VCF file
-    :return: a nice dict with all header elements and their subelements structured
-    """
-    raw_header = get_raw_header(inputvcf)
-    raw_header_popped = pop_header(raw_header)
-    cleaned_meta = clean_meta(raw_header_popped)
-    base_dict = dictify(cleaned_meta)
-
-    chunk_dict = validate_meta(base_dict)
-
-    meta_dict = {}
-    if chunk_dict["INFO"]:
-        meta_dict = generate_complete_dict(base_dict, "INFO", 3)
-    if chunk_dict["FORMAT"]:
-        meta_dict = generate_complete_dict(base_dict, "FORMAT", 3)
-    if chunk_dict["FILTER"]:
-        meta_dict = generate_complete_dict(meta_dict, "FILTER", 1)
-    return meta_dict
-
-
-def populatevcfheader(input_vcf, samples_in_header=None):
-    """
-    returns a header on the original vcf with "samplefield" being the sample names (fields after the "INFO" samples)
-
-
-    :param input_vcf: basic VCF file
-    :param samples_in_header: samplenames
-    :return: things that should be in the actual header of the vcf
-    """
-    metadict = process_meta_dict(input_vcf)
-    metadict = detect_double_type(metadict)
-    header = extract_header(input_vcf)
-    if samples_in_header:
-        samples_in_header = samples_in_header.split()
-        if len(samples_in_header) == len(header[9:]):
-            header = header[:9] + samples_in_header
-        else:
-            sys.exit(
-                f" '--samples_in_header' given has {len(samples_in_header)}, "
-                f"but there are {len(header[9:])} samples columns in the vcf body header"
-            )
-
-    vcf_header = VcfHeader(input_vcf, header, metadict)
-    return vcf_header
