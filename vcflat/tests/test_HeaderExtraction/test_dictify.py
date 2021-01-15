@@ -1,5 +1,5 @@
 import os
-from vcflat.HeaderExtraction import get_raw_header, dictify, clean_meta
+from vcflat.HeaderExtraction import VcfHeader, dictify, clean_meta
 from collections import defaultdict
 
 
@@ -10,8 +10,8 @@ def get_input():
 
 
 def base_tests():
-    i = get_input()
-    output = get_raw_header(i)
+    vch = VcfHeader(get_input())
+    output = vch.get_raw_header()
     clean = clean_meta(output)
     dictified = dictify(clean)
     return dictified

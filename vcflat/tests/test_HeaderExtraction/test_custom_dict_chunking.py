@@ -1,38 +1,30 @@
 import os
-import vcflat.HeaderExtraction as HE
+
+from vcflat.HeaderExtraction import VcfHeader, dictify, clean_meta, custom_dict_chunking
+
+#TODO add more tests that make more sense
 
 
-def get_input(file):
+
+def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), "..", "test_data")
-    i = os.path.join(test_data_dir, f"{file}")
+    i = os.path.join(test_data_dir, "test.snpeff.vcf")
     return i
 
 
-def base_test_1():
-    i = get_input("test.snpeff.vcf")
-    output = HE.get_raw_header(i)
-    clean = HE.clean_meta(output)
-    dictified = HE.dictify(clean)
-    out = HE.custom_dict_chunking(dictified, "FILTER", 1)
-
+def base_test(nr):
+    vch = VcfHeader(get_input())
+    output = vch.get_raw_header()
+    clean = clean_meta(output)
+    dictified = dictify(clean)
+    out = custom_dict_chunking(dictified, "FILTER", nr)
     return out
-
-
-def base_test_2():
-    i = get_input("test.snpeff.vcf")
-    output = HE.get_raw_header(i)
-    clean = HE.clean_meta(output)
-    dictified = HE.dictify(clean)
-    out = HE.custom_dict_chunking(dictified, "FILTER", 3)
-    print(out["FILTER"])
-    return out
-
 
 def test_1():
     """ test if string is split the correct way """
-    assert len(base_test_1()["FILTER"][0]) is 2
+    assert len(base_test(1)["FILTER"][0]) is 2
 
 
 def test_2():
     """ test if string is split the wrong way  """
-    assert len(base_test_2()["FILTER"][0][0]) is not 4
+    assert len(base_test(3)["FILTER"][0][0]) is not 4

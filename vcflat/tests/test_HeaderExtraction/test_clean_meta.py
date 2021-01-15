@@ -1,5 +1,5 @@
 import os
-from vcflat.HeaderExtraction import get_raw_header, clean_meta
+from vcflat.HeaderExtraction import VcfHeader, clean_meta
 
 
 def get_input():
@@ -9,8 +9,8 @@ def get_input():
 
 
 def base_tests():
-    i = get_input()
-    output = get_raw_header(i)
+    vch = VcfHeader(get_input())
+    output = vch.get_raw_header()
     clean = clean_meta(output)
     return clean
 

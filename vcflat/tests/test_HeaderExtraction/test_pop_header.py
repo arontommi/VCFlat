@@ -1,5 +1,5 @@
 import os
-from vcflat.HeaderExtraction import get_raw_header, extract_header, pop_header
+from vcflat.HeaderExtraction import VcfHeader, pop_header
 
 
 def get_input():
@@ -10,7 +10,8 @@ def get_input():
 
 def get_no_chrom():
     i = get_input()
-    output = get_raw_header(i)
+    vch = VcfHeader(i)
+    output = vch.get_raw_header()
     output_no_chrom = pop_header(output)
     return output_no_chrom
 
@@ -27,5 +28,5 @@ def test_2():
 
 def test_3():
     """ checks that the header has been poped """
-    header = extract_header(get_input())
+    header = VcfHeader(get_input()).extract_header()
     assert header not in get_no_chrom()

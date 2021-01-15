@@ -1,13 +1,14 @@
-import os
-from vcflat.HeaderExtraction import extract_header
 
+import os
+
+from vcflat.HeaderExtraction import VcfHeader
 
 def get_input():
     test_data_dir = os.path.join(os.path.dirname(__file__), "..", "test_data")
     i = os.path.join(test_data_dir, "test.snpeff.vcf")
-    output = extract_header(i)
+    vcfh = VcfHeader(i)
+    output = vcfh.extract_header()
     return output
-
 
 def test_1():
     """ checks that output is list """
