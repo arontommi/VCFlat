@@ -1,5 +1,15 @@
 # VCFlat: Changelog
 
+## [0.3.0] Fast fixes
+
+* HeaderExtraction refactored to understandable code
+* pprint functions 
+* VAF removed since it is wrong to do it this way
+* sample renaming fixed and added back in
+* tuple values that were changed to _REF _ALT but shouldnt have been fixed
+* work on better parsing of INFO has been added
+
+
 ## [0.2.1] Fast fixes
 
 * `--anno` option bug fixes

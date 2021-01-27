@@ -3,55 +3,95 @@ from csv import DictWriter
 from cyvcf2 import VCF
 from itertools import product, chain
 
-from vcflat.HeaderExtraction import populatevcfheader
+from vcflat.HeaderExtraction import VcfHeader
 
 import re
 
+
 class VcfParse:
-    def __init__(self, input_vcf, annotation=None, long_anno=None):
+    def __init__(
+        self, input_vcf, annotation=None, long_anno=None, samples_in_header=None
+    ):
         self.input_vcf = input_vcf
-        self.vcf_meta = populatevcfheader(self.input_vcf)
+        self.vcf_meta = VcfHeader(self.input_vcf, samples_in_header=samples_in_header)
         self.anno_fields = self.check_for_annotations()
         self.long_anno = long_anno if long_anno is not None else 20
 
         self.annotation = annotation
         self.vcf_header_extended = self.vcf_meta.header
-        self.csq = False
+        self.csq = True
         if self.anno_fields:
             self.csq = True
             self.vcf_header_extended = self.vcf_meta.header
             self.csq_labels = {}
             for i in self.anno_fields:
                 self.csq_labels[i] = self.get_csq_labels(i)
-                self.vcf_header_extended = self.vcf_header_extended + [i + '_dict']
+                self.vcf_header_extended = self.vcf_header_extended + [i + "_dict"]
 
     def check_for_annotations(self):
         list_of_annotations = []
-        for k, v in self.vcf_meta.meta_dict['INFO'].items():
-            for i in v:
-                if '|' in i:
+        for k, v in self.vcf_meta.meta_dict["INFO"].items():
+            for i in v["data"]:
+                if "|" in i:
                     list_of_annotations.append(k)
 
         return list_of_annotations
 
     def get_csq_labels(self, anno_flag):
         """extract csq labels from meta info and cleans leading and trailing whitespace"""
-        csq_labels = self.vcf_meta.meta_dict['INFO'][anno_flag][2].split(':', 1)[1].split('|')
+        csq_labels = (
+            self.vcf_meta.meta_dict["INFO"][anno_flag]["data"][2]
+            .split(":", 1)[1]
+            .split("|")
+        )
         csq_labels = [i.strip() for i in csq_labels]
         return csq_labels
 
     def parse_csq(self, li, csq_labels, anno_field):
         if li[7].get(anno_field):
             ret_list = []
-            annotation_length = len(li[7][anno_field].split(',')[0].split('|'))
-            if len(li[7][anno_field].split(',')) >= self.long_anno:
-                z = dict(zip(csq_labels[anno_field], ['To Long Annotation'] * annotation_length))
+            annotation_length = len(li[7][anno_field].split(",")[0].split("|"))
+            if len(li[7][anno_field].split(",")) >= self.long_anno:
+                z = dict(
+                    zip(
+                        csq_labels[anno_field],
+                        ["To Long Annotation"] * annotation_length,
+                    )
+                )
                 ret_list.append(z)
             else:
-                for infolist in li[7][anno_field].split(','):
-                    z = dict(zip(csq_labels[anno_field], infolist.split('|')))
+                for infolist in li[7][anno_field].split(","):
+                    z = dict(zip(csq_labels[anno_field], infolist.split("|")))
                     ret_list.append(z)
             return ret_list
+
+    def split_ref_alt(self, ll):
+        """
+        splits FORMAT elements that has two values into REF and ALT
+        """
+        ra = ["_1", "_2"]
+        for nr, i in enumerate(ll[9:]):
+            ldicts = dict()
+            for k, v in i.items():
+                if len(v.split(",")) == 2:
+                    try:
+                        if (
+                            self.vcf_meta.meta_dict["FORMAT"][k.split("_")[1]][
+                                "double_type"
+                            ]
+                            == "REF_ALT"
+                        ):
+                            ra = ["_REF", "_ALT"]
+                    except:
+                        pass
+                    vsp = [int(i) for i in v.split(",")]
+                    k_ra = [k + r for r in ra]
+                    ndict = dict()
+                    for nk, nv in zip(k_ra, vsp):
+                        ndict[nk] = nv
+                    ldicts = {**ldicts, **ndict}
+            ll[nr + 9] = {**i, **ldicts}
+        return ll
 
     def parse_line_list(self, listfromvcfline):
         """
@@ -61,8 +101,7 @@ class VcfParse:
         """
         li = nestlists(listfromvcfline)
         li = zipformat(li, header_list=self.vcf_meta.header)
-        li = split_ref_alt(li)
-        li = generate_vaf(li)
+        li = self.split_ref_alt(li)
         li = splitinfo(li)
         if self.csq:
             anno_list = []
@@ -77,20 +116,20 @@ class VcfParse:
 
         lod = []
         for lst in li:
-            res = list(chain.from_iterable(i if isinstance(i, list) else [i] for i in lst))
+            res = list(
+                chain.from_iterable(i if isinstance(i, list) else [i] for i in lst)
+            )
             d = {k: v for k, v in zip(self.vcf_header_extended, res)}
             lod.append(d)
         return lod
 
-
-
     def parse(self, sample=None):
-        s = 'Sample'
+        s = "Sample"
         if sample:
             s = sample
-        vcf_file = VCF('{}'.format(self.input_vcf), strict_gt=True)
+        vcf_file = VCF("{}".format(self.input_vcf), strict_gt=True)
         for line in vcf_file:
-            split_line = [i.strip('\n') for i in str(line).split('\t')]
+            split_line = [i.strip("\n") for i in str(line).split("\t")]
             return_li = self.parse_line_list(split_line)
             for d in return_li:
                 merged = flatten_d(d)
@@ -131,17 +170,18 @@ class VcfParse:
                             key_list.insert(key_list.index(key), foundkey)
                     key_list.pop(key_list.index(key))
                 except re.error:
-                    sys.stderr.write(f' these keys are not found in the vcf file: '
-                                     f'{"".join([i for i in  keyset.difference(allkeys)])} \n' 
-                                     f' please check your key input or Regex pattern could not be compiled')
+                    sys.stderr.write(
+                        f" these keys are not found in the vcf file: "
+                        f'{"".join([i for i in  keyset.difference(allkeys)])} \n'
+                        f" please check your key input or Regex pattern could not be compiled"
+                    )
             return key_list
-
 
     def write2csv(self, out, keys, sample=None):
         pars = self.parse(sample=sample)
         keys = dict.fromkeys([i for i in keys]).keys()
-        with (open(out, 'w') if out else sys.stdout) as csvfile:
-            writer = DictWriter(csvfile, keys, delimiter='\t', extrasaction='ignore')
+        with (open(out, "w") if out else sys.stdout) as csvfile:
+            writer = DictWriter(csvfile, keys, delimiter="\t", extrasaction="ignore")
             writer.writeheader()
             for line in pars:
                 writer.writerow(line)
@@ -163,66 +203,19 @@ def zipformat(ll, header_list):
     zips together FORMAT labels, Sample name and format values into one dict
     """
     for nr, plist in enumerate(ll[9:]):
-        formatlist = [header_list[nr + 9] + '_' + i for i in plist[0].split(':')]
-        ll[nr + 9] = dict(zip(formatlist, plist[1].split(':')))
-    return ll
-
-
-def split_ref_alt(ll):
-    """
-    splits FORMAT elements that has two values into REF and ALT
-    """
-    ra = ['_REF', '_ALT']
-    for nr, i in enumerate(ll[9:]):
-        ldicts = dict()
-        for k, v in i.items():
-            if len(v.split(',')) == 2:
-                vsp = [int(i) for i in v.split(',')]
-                k_ra = [k + r for r in ra]
-                ndict = dict()
-                for nk, nv in zip(k_ra, vsp):
-                    ndict[nk] = nv
-                ldicts = {**ldicts, **ndict}
-        ll[nr + 9] = {**i, **ldicts}
-    return ll
-
-
-def generate_vaf(ll):
-    """
-    Creates VAF tab (variant allele frequency) AD_ALT / (AD_REF + AD_ALT)
-    """
-    for nr, i in enumerate(ll[9:]):
-        refdp = 1
-        altdp = 1
-        ndict = {}
-        sample = ''
-        for k, v in i.items():
-            if k.endswith("AD_REF"):
-                refdp = v
-                sample = k.strip("AD_REF")
-            if k.endswith("AD_ALT"):
-                altdp = v
-            totdp = refdp + altdp
-            try:
-                vaf = altdp / totdp
-            except ZeroDivisionError:
-                vaf = 0
-            ndict = {f'{sample}_VAF': vaf}
-        if sample == '':
-            pass
-        else:
-            ll[nr + 9] = {**i, **ndict}
+        formatlist = [header_list[nr + 9] + "_" + i for i in plist[0].split(":")]
+        ll[nr + 9] = dict(zip(formatlist, plist[1].split(":")))
     return ll
 
 
 def splitinfo(li):
     """ Splits the INFO column and generates a dict"""
     defdi = dict()
-    for i in li[7].split(';'):
-        if '=' not in i:
-            defdi[i] = 'True'
+    for i in li[7].split(";"):
+        if "=" not in i:
+            defdi[i] = "True"
         else:
-            l4d = i.split('=')
+            l4d = i.split("=")
             defdi[l4d[0]] = l4d[1]
     li[7] = defdi
     return li
@@ -235,9 +228,6 @@ def valdidate_csq(li, anno_field):
     """
     if li[7].get(anno_field):
         return True
-
-
-
 
 
 def flatten_d(d):

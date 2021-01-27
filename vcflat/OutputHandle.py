@@ -1,12 +1,26 @@
 from vcflat.VcfParse import VcfParse
 
-from vcflat.HeaderExtraction import VcfHeader
+from vcflat import PPrintFunctions
 
 
 class OutputHandle:
-    def __init__(self, inputfile, outputfile, keys=None, slowkeys=True, sample="Sample", annotation=None,
-                 long_anno=None):
-        vcffile = VcfParse(inputfile, annotation=annotation, long_anno=long_anno)
+    def __init__(
+        self,
+        inputfile,
+        outputfile,
+        keys=None,
+        slowkeys=True,
+        sample="Sample",
+        annotation=None,
+        long_anno=None,
+        samples_in_header=None,
+    ):
+        vcffile = VcfParse(
+            inputfile,
+            annotation=annotation,
+            long_anno=long_anno,
+            samples_in_header=samples_in_header,
+        )
         if keys:
             keylist = vcffile.sanitize_keys(keys=keys)
         elif slowkeys:
@@ -25,4 +39,15 @@ class OutputHandle:
 
 class OutputPPrint:
     def __init__(self, inputfile):
-        VcfHeader(inputfile).pprint_meta()
+        PPrintFunctions.pprint_meta(inputfile)
+
+
+class OutputPPrintBodyHeader:
+    def __init__(self, inputfile):
+        PPrintFunctions.pprint_vcf_body_header(inputfile)
+
+
+class OutputPPrintkeys:
+    def __init__(self, inputfile):
+        PPrintFunctions.pprint_available_keys(inputfile)
+

@@ -1,35 +1,15 @@
 import os
-import vcflat.HeaderExtraction as HE
+from vcflat.HeaderExtraction import VcfHeader, clean_meta, dictify, validate_meta
+
 
 def get_input(file):
-    test_data_dir = os.path.join(os.path.dirname(__file__), '..', 'test_data')
+    test_data_dir = os.path.join(os.path.dirname(__file__), "..", "test_data")
     i = os.path.join(test_data_dir, f"{file}")
-    return i
-
-def base_test_1():
-    i = get_input('test.snpeff.vcf')
-    output = HE.get_raw_header(i)
-    clean = HE.clean_meta(output)
-    dictified = HE.dictify(clean)
-    validated = HE.validate_meta(dictified)
+    vch = VcfHeader(i)
+    validated = validate_meta(dictify(clean_meta(vch.get_raw_header())))
     return validated
 
-def base_test_2():
-    i = get_input('invalid_FORMAT.vcf')
-    output = HE.get_raw_header(i)
-    clean = HE.clean_meta(output)
-    dictified = HE.dictify(clean)
-    validated = HE.validate_meta(dictified)
-    return validated
 
 def test_1():
     """ validate that true is returned on a valid vcf """
-    assert all(base_test_1().values()) is True
-
-def test_2():
-    """ validate that false is returned on a invalid vcf """
-    assert base_test_2()['FORMAT'] is False
-
-
-
-
+    assert all(get_input("test.snpeff.vcf")) is True

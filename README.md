@@ -42,6 +42,7 @@ I tend to run one vcf file with the `--slowkeys` flag and then pick relevant col
 
 ### list of parameters:
 ```
+    -h              :   (--help) prints out available options
     -i              :   (--inputfile) A VCF file. it can be gzipped as well
     -o              :   (--outputfile) Output file 
     -s              :   (--sample) Samplename
@@ -50,6 +51,10 @@ I tend to run one vcf file with the `--slowkeys` flag and then pick relevant col
     --annotation    :   To specify which annotation to use if there are multiple annotations on the vcf. since VCFlat creates a seperate line for each annotation, if there are multiple annotation it can soon balloon the file.
     --long_anno     :   To specify max number of annotations (default set at 20). very hand to reduce annotations for structural variant files
     
+    pretty print functions (input file needs to be provided)
+    --pprint_header         :   prints out the vcf header of the vcf file provided
+    --pprint_body_header    :   prints out the body header of the vcf file 
+    --pprint_available_keys :   prints out available keys for the vcf file 
 ```
 
 VCFlat uses [Cyvcf2](https://github.com/brentp/cyvcf2) under the hood. Cyvcf2 *is a cython wrapper around [htslib](https://github.com/samtools/htslib)
