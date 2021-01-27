@@ -19,7 +19,7 @@ class VcfParse:
 
         self.annotation = annotation
         self.vcf_header_extended = self.vcf_meta.header
-        self.csq = False
+        self.csq = True
         if self.anno_fields:
             self.csq = True
             self.vcf_header_extended = self.vcf_meta.header
