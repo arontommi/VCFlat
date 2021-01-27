@@ -102,7 +102,6 @@ class VcfParse:
         li = nestlists(listfromvcfline)
         li = zipformat(li, header_list=self.vcf_meta.header)
         li = self.split_ref_alt(li)
-        li = generate_vaf(li)
         li = splitinfo(li)
         if self.csq:
             anno_list = []
@@ -206,34 +205,6 @@ def zipformat(ll, header_list):
     for nr, plist in enumerate(ll[9:]):
         formatlist = [header_list[nr + 9] + "_" + i for i in plist[0].split(":")]
         ll[nr + 9] = dict(zip(formatlist, plist[1].split(":")))
-    return ll
-
-
-def generate_vaf(ll):
-    """
-    Creates VAF tab (variant allele frequency) AD_ALT / (AD_REF + AD_ALT)
-    """
-    for nr, i in enumerate(ll[9:]):
-        refdp = 1
-        altdp = 1
-        ndict = {}
-        sample = ""
-        for k, v in i.items():
-            if k.endswith("AD_REF"):
-                refdp = v
-                sample = k.strip("AD_REF")
-            if k.endswith("AD_ALT"):
-                altdp = v
-            totdp = refdp + altdp
-            try:
-                vaf = altdp / totdp
-            except ZeroDivisionError:
-                vaf = 0
-            ndict = {f"{sample}_VAF": vaf}
-        if sample == "":
-            pass
-        else:
-            ll[nr + 9] = {**i, **ndict}
     return ll
 
 
