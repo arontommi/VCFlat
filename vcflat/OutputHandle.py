@@ -45,3 +45,9 @@ class OutputPPrint:
 class OutputPPrintBodyHeader:
     def __init__(self, inputfile):
         PPrintFunctions.pprint_vcf_body_header(inputfile)
+
+
+class OutputPPrintkeys:
+    def __init__(self, inputfile):
+        PPrintFunctions.pprint_available_keys(inputfile)
+

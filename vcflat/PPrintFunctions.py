@@ -1,5 +1,5 @@
 from vcflat.HeaderExtraction import VcfHeader
-
+from vcflat.VcfParse import VcfParse
 import pprint as pp
 
 
@@ -12,4 +12,4 @@ def pprint_vcf_body_header(input_vcf):
 
 
 def pprint_available_keys(input_vcf):
-    pass
+    pp.pprint(VcfParse(input_vcf).get_header_fast())

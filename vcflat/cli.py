@@ -1,7 +1,7 @@
 import click
 import sys
 
-from vcflat.OutputHandle import OutputHandle, OutputPPrint, OutputPPrintBodyHeader
+from vcflat.OutputHandle import OutputHandle, OutputPPrint, OutputPPrintBodyHeader, OutputPPrintkeys
 
 
 @click.command(
@@ -56,10 +56,17 @@ from vcflat.OutputHandle import OutputHandle, OutputPPrint, OutputPPrintBodyHead
     is_flag=True,
     flag_value=True,
 )
+@click.option(
+    "--pprint_available_keys",
+    help="prints possible keys for the vcf file",
+    is_flag=True,
+    flag_value=True,
+)
 def vcflat(
     inputfile,
     pprint_header,
     pprint_body_header,
+    pprint_available_keys,
     outputfile=None,
     sample="Sample",
     keys=False,
@@ -72,7 +79,9 @@ def vcflat(
         OutputPPrint(inputfile)
     if pprint_body_header:
         OutputPPrintBodyHeader(inputfile)
-    if not pprint_body_header and not pprint_header:
+    if pprint_available_keys:
+        OutputPPrintkeys(inputfile)
+    if not pprint_body_header and not pprint_header and not pprint_available_keys:
         OutputHandle(
             inputfile=inputfile,
             outputfile=outputfile,
