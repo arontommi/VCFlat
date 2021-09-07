@@ -4,7 +4,7 @@ VCFlat -- flatten Variant Call Format(VCF)
 ## A simple package to parse VCF files to a tab delimited flat file
 
 The idea is to be able to flatten any [vcf](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
-It is reccomended to filter before hand but since python generators are used,
+It is recommended to filter before hand but since python generators are used,
 it shoud not take up all the memory.
 
 ### install
