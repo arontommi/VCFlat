@@ -2,10 +2,9 @@ import sys
 from csv import DictWriter
 from cyvcf2 import VCF
 from itertools import product, chain
+import re
 
 from vcflat.HeaderExtraction import VcfHeader
-
-import re
 
 
 class VcfParse:
