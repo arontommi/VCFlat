@@ -1,5 +1,4 @@
 import click
-import sys
 
 from vcflat.OutputHandle import OutputHandle, OutputPPrint, OutputPPrintBodyHeader, OutputPPrintkeys
 
