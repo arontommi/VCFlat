@@ -12,3 +12,5 @@ build/
 *.cache*
 vcflat/__init__.pyc
 vcflat/cli.pyc
+Pipfile
+Pipfile.lock
