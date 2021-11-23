@@ -8,11 +8,14 @@ from vcflat.HeaderExtraction import VcfHeader
 
 
 class VcfParse:
-    def __init__(
-        self, input_vcf, annotation=None, long_anno=None, samples_in_header=None
-    ):
+    def __init__(self,
+                 input_vcf,
+                 annotation=None,
+                 long_anno=None,
+                 samples_in_header=None):
         self.input_vcf = input_vcf
-        self.vcf_meta = VcfHeader(self.input_vcf, samples_in_header=samples_in_header)
+        self.vcf_meta = VcfHeader(self.input_vcf,
+                                  samples_in_header=samples_in_header)
         self.anno_fields = self.check_for_annotations()
         self.long_anno = long_anno if long_anno is not None else 20
         self.annotation = annotation
@@ -24,7 +27,9 @@ class VcfParse:
             self.csq_labels = {}
             for i in self.anno_fields:
                 self.csq_labels[i] = self.get_csq_labels(i)
-                self.vcf_header_extended = self.vcf_header_extended + [i + "_dict"]
+                self.vcf_header_extended = self.vcf_header_extended + [
+                    i + "_dict"
+                ]
 
     def check_for_annotations(self):
         list_of_annotations = []
@@ -38,10 +43,8 @@ class VcfParse:
     def get_csq_labels(self, anno_flag):
         """extract csq labels from meta info and cleans leading and trailing whitespace"""
         csq_labels = (
-            self.vcf_meta.meta_dict["INFO"][anno_flag]["data"][2]
-            .split(":", 1)[1]
-            .split("|")
-        )
+            self.vcf_meta.meta_dict["INFO"][anno_flag]["data"][2].split(
+                ":", 1)[1].split("|"))
         csq_labels = [i.strip() for i in csq_labels]
         return csq_labels
 
@@ -49,13 +52,12 @@ class VcfParse:
         if li[7].get(anno_field):
             ret_list = []
             annotation_length = len(li[7][anno_field].split(",")[0].split("|"))
-            if len(li[7][anno_field].split(",")) >= self.long_anno:
+            if len(li[7][anno_field].split(",")) >= int(self.long_anno):
                 z = dict(
                     zip(
                         csq_labels[anno_field],
                         ["To Long Annotation"] * annotation_length,
-                    )
-                )
+                    ))
                 ret_list.append(z)
             else:
                 for infolist in li[7][anno_field].split(","):
@@ -73,12 +75,8 @@ class VcfParse:
             for k, v in i.items():
                 if len(v.split(",")) == 2:
                     try:
-                        if (
-                            self.vcf_meta.meta_dict["FORMAT"][k.split("_")[1]][
-                                "double_type"
-                            ]
-                            == "REF_ALT"
-                        ):
+                        if (self.vcf_meta.meta_dict["FORMAT"][k.split("_")[1]]
+                            ["double_type"] == "REF_ALT"):
                             ra = ["_REF", "_ALT"]
                     except:
                         pass
@@ -115,8 +113,8 @@ class VcfParse:
         lod = []
         for lst in li:
             res = list(
-                chain.from_iterable(i if isinstance(i, list) else [i] for i in lst)
-            )
+                chain.from_iterable(i if isinstance(i, list) else [i]
+                                    for i in lst))
             d = {k: v for k, v in zip(self.vcf_header_extended, res)}
             lod.append(d)
         return lod
@@ -179,7 +177,10 @@ class VcfParse:
         pars = self.parse(sample=sample)
         keys = dict.fromkeys([i for i in keys]).keys()
         with (open(out, "w") if out else sys.stdout) as csvfile:
-            writer = DictWriter(csvfile, keys, delimiter="\t", extrasaction="ignore")
+            writer = DictWriter(csvfile,
+                                keys,
+                                delimiter="\t",
+                                extrasaction="ignore")
             writer.writeheader()
             for line in pars:
                 writer.writerow(line)
@@ -201,7 +202,9 @@ def zipformat(ll, header_list):
     zips together FORMAT labels, Sample name and format values into one dict
     """
     for nr, plist in enumerate(ll[9:]):
-        formatlist = [header_list[nr + 9] + "_" + i for i in plist[0].split(":")]
+        formatlist = [
+            header_list[nr + 9] + "_" + i for i in plist[0].split(":")
+        ]
         ll[nr + 9] = dict(zip(formatlist, plist[1].split(":")))
     return ll
 

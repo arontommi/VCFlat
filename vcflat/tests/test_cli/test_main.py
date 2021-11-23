@@ -1,6 +1,5 @@
 import os, csv
 
-
 pytest_plugins = ["pytester"]
 
 
@@ -9,8 +8,7 @@ def get_input():
     input = os.path.join(test_data_dir, "test-hemi.vcf")
 
     output = os.path.join(
-        os.path.join(os.path.dirname(__file__), "..", "test_data"), "out.csv"
-    )
+        os.path.join(os.path.dirname(__file__), "..", "test_data"), "out.csv")
     return input, output
 
 
@@ -46,14 +44,31 @@ def test_4():
     """ Test key if correct keys are in the csv returned"""
     input, output = get_input()
     with open(
-        os.path.join(
-            os.path.dirname(__file__), "..", "test_data", "main_test4_keys.txt"
-        )
-    ) as f:
+            os.path.join(os.path.dirname(__file__), "..", "test_data",
+                         "main_test4_keys.txt")) as f:
         returnkeys = f.read().splitlines()
     os.system(f" python -m vcflat -i {input} -o {output}")
 
     with open(output, "r") as f:
         reader = csv.DictReader(f)
-        assert [i for i in returnkeys if i in set(reader.fieldnames[0].split("\t"))]
+        assert [
+            i for i in returnkeys if i in set(reader.fieldnames[0].split("\t"))
+        ]
+    os.remove(output)
+
+
+def test_5():
+    """ test long anno """
+    input, output = get_input()
+
+    with open(
+            os.path.join(os.path.dirname(__file__), "..", "test_data",
+                         "main_test4_keys.txt")) as f:
+        returnkeys = f.read().splitlines()
+    os.system(f" python -m vcflat -i {input} -o {output} -la 100")
+    with open(output, "r") as f:
+        reader = csv.DictReader(f)
+        assert [
+            i for i in returnkeys if i in set(reader.fieldnames[0].split("\t"))
+        ]
     os.remove(output)
