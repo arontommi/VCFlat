@@ -1,10 +1,5 @@
 import vcflat.VcfParse as VP
 import os
-from cyvcf2 import VCF
-
-from itertools import product, chain
-
-import pytest
 
 
 def get_input():
@@ -29,14 +24,12 @@ def get_input():
     return i, testline
 
 
-def base_tests(long_anno=None):
+def base_tests(**kwargs):
+    if not kwargs:
+        kwargs= {}
+        kwargs['long_anno'] = None
     vcf, testline = get_input()
-    vcffile = VP.VcfParse(vcf, long_anno=long_anno)
-    testline = VP.generate_vaf(
-        vcffile.split_ref_alt(
-            VP.zipformat(VP.nestlists(testline), header_list=vcffile.vcf_meta.header)
-        )
-    )
+    vcffile = VP.VcfParse(vcf, long_anno=kwargs['long_anno'])
 
     testline = VP.splitinfo(testline)
     data = vcffile.parse_csq(testline, vcffile.csq_labels, "CSQ")
